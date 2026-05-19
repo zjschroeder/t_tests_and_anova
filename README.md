@@ -18,25 +18,6 @@ The four t-test and one-way ANOVA tabs each follow a parallel 9-step
 skeleton; factorial ANOVA is a streamlined 6-step orientation (per a midterm-
 scope decision — factorial is post-midterm material).
 
-## The 9-step skeleton (tabs 1–4)
-
-| Step | Topic |
-|---|---|
-| 1 | The null world for the test statistic |
-| 2 | Run one study: what statistic do we compute? |
-| 3 | Run it again — sampling variability |
-| 4 | Sampling distribution of the relevant statistic |
-| 5 | Standard error of that statistic |
-| 6 | The test statistic = signal ÷ noise |
-| 7 | Setting alpha |
-| 8 | Critical values + degrees of freedom |
-| 9 | The decision + APA write-up |
-
-The same `(signal) / (noise)` framing carries through every tab. Paired ⇒
-"single-sample on the difference scores." Independent ⇒ "sampling
-distribution of differences between means." ANOVA ⇒ F as signal/noise
-generalized from t.
-
 ## Three parallel explanation cards per step
 
 Every step has three side-by-side cards with the same content at three
@@ -98,30 +79,10 @@ Detected automatically by `rsconnect::appDependencies()`:
 | scales | percent-axis labels in the ANOVA familywise-error plot |
 | thematic | *optional* — only loaded if installed; harmonises plot fonts |
 
-71 packages in the transitive closure. The free shinyapps.io tier (25
-active hours/month, 5 apps) is more than enough for one class section.
-
 ### MathJax CDN
 
 The app loads MathJax v2.7.9 from cdnjs (`cdnjs.cloudflare.com`). Shiny's
 default `withMathJax()` points at `mathjax.rstudio.com`, which has been
 offline since the RStudio→Posit rebrand; `app.R` overrides it. No further
 action needed — the override travels with the deployed app.
-
-## Customising for future semesters
-
-- **Lab scenarios**: each tab's `LABn` constants object lives at the top
-  of its `R/tab_*.R` file. Update the data vectors and pre-computed
-  statistics there to swap in a different running example.
-- **Slider defaults** (Tab 1): edit `sliderInput("pop_mu", ...)`,
-  `sliderInput("pop_sigma", ...)`, and `sliderInput("pop_n", ...)`
-  defaults near the Step 1 / Step 2 / Step 5 / Step 9 input blocks in
-  `app.R`.
-- **Theme**: the `bs_theme(bootswatch = "minty")` call picks the look.
-  Try `"cosmo"`, `"sandstone"`, `"flatly"`, or `"yeti"` for variants. The
-  Okabe-Ito plot palette is independent of the bootswatch theme.
-- **Alpha choice on Tab 1**: chooseable per-session via radio buttons.
-  Tabs 2-5 currently fix α = .05 (the PSY 302 default) — to vary it, add a
-  `radioButtons("*_alpha", ...)` to the corresponding `R/tab_*.R` and
-  pass it through to that tab's Step 7/8/9 plots.
 
