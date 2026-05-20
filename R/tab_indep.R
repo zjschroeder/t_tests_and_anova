@@ -387,7 +387,7 @@ source_indep_server <- function(input, output, session) {
             "on that sampling distribution."
           )
         ),
-        math_block("(M_1 - M_2) \\;\\sim\\; \\mathcal{N}\\!\\left(0,\\ \\sqrt{\\dfrac{\\sigma_1^2}{n_1} + \\dfrac{\\sigma_2^2}{n_2}}\\right)"),
+        math_block("(M_1 - M_2) \\;\\sim\\; N\\!\\left(0,\\ \\sqrt{\\dfrac{\\sigma_1^2}{n_1} + \\dfrac{\\sigma_2^2}{n_2}}\\right)"),
         plotOutput("indep_step4_plot", height = "300px"),
         callout_warm(
           tags$b("The distribution most often confused with this one. "),

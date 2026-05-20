@@ -437,9 +437,14 @@ ui <- page_navbar(
   theme = bs_theme(
     version = 5,
     bootswatch = "minty",
-    base_font    = font_google("Inter"),
-    heading_font = font_google("Source Serif Pro"),
-    code_font    = font_google("JetBrains Mono")
+    # local = FALSE tells bslib to load the font via a CSS <link> in the
+    # rendered page (the browser fetches it), instead of running curl from
+    # the R process at startup. The default (local = TRUE) hits a 10-second
+    # curl timeout against fonts.googleapis.com in environments that can't
+    # reach the network from R, including Shinylive's WASM context.
+    base_font    = font_google("Inter",            local = FALSE),
+    heading_font = font_google("Source Serif Pro", local = FALSE),
+    code_font    = font_google("JetBrains Mono",   local = FALSE)
   ),
   fillable = FALSE,
   header = tags$head(
@@ -676,11 +681,15 @@ ui <- page_navbar(
 
           # ---- Hidden sliders (preserve the input bindings used downstream
           # but keep the widget out of the visible UI per the redesign).
+          # Defaults are set to the peas case study: μ₀ = 4 (null benchmark)
+          # and σ ≈ 0.78 (estimated from the eleven-baby sample). pop_sigma's
+          # minimum is dropped to 0.1 so the case-study SD is exactly
+          # representable.
           tags$div(style = "display:none;",
             sliderInput("pop_mu", "Population mean (μ)",
-                        min = 1, max = 100, value = 6, step = 0.5),
+                        min = 1, max = 100, value = 4, step = 0.1),
             sliderInput("pop_sigma", "Population SD (σ)",
-                        min = 1, max = 25, value = 1, step = 0.5)
+                        min = 0.1, max = 25, value = 0.78, step = 0.1)
           ),
           plotlyOutput("popPlot", height = "360px"),
           callout_warm(
@@ -885,7 +894,7 @@ ui <- page_navbar(
                   ", the sampling distribution of ",
                   math_inline("\\bar{x}"),
                   " converges to ",
-                  math_inline("\\mathcal{N}(\\mu,\\ \\sigma/\\sqrt{n})"),
+                  math_inline("N(\\mu,\\ \\sigma/\\sqrt{n})"),
                   ". This is the result that makes the t-distribution applicable ",
                   "to a wide range of populations.")
               )
@@ -915,7 +924,7 @@ ui <- page_navbar(
                   " The t-distribution has carried his pseudonym ever since.")
               )
             ),
-            math_block("\\bar{x} \\;\\sim\\; \\mathcal{N}\\!\\left(\\mu,\\ \\dfrac{\\sigma}{\\sqrt{n}}\\right)"),
+            math_block("\\bar{x} \\;\\sim\\; N\\!\\left(\\mu,\\ \\dfrac{\\sigma}{\\sqrt{n}}\\right)"),
             div(style = "display:flex; gap:8px; flex-wrap:wrap;",
                 actionButton("draw_50",    "Draw 50 more studies",  class = "btn-primary"),
                 actionButton("draw_500",   "Draw 500 more studies", class = "btn-primary"),
@@ -1038,7 +1047,7 @@ ui <- page_navbar(
                            style = "margin-top:0;"),
                         sliderInput("step5_sigma",
                                     "Population SD (σ), which sets the typical sample s",
-                                    min = 1, max = 25, value = 1, step = 0.5,
+                                    min = 0.1, max = 25, value = 0.78, step = 0.1,
                                     width = "100%"),
                         sliderInput("step5_n", "Sample size (n)",
                                     min = 2, max = 100, value = 11, step = 1,
@@ -1481,9 +1490,9 @@ ui <- page_navbar(
                   "Steps 1, 2, 6, 7, and 8. Use them as the synthesis dashboard."),
                 fluidRow(
                   column(4, sliderInput("step9_mu", "μ", min = 1, max = 100,
-                                        value = 6, step = 0.5)),
-                  column(4, sliderInput("step9_sigma", "σ", min = 1, max = 25,
-                                        value = 1, step = 0.5)),
+                                        value = 4, step = 0.1)),
+                  column(4, sliderInput("step9_sigma", "σ", min = 0.1, max = 25,
+                                        value = 0.78, step = 0.1)),
                   column(4, sliderInput("step9_n", "n", min = 2, max = 100,
                                         value = 11, step = 1))
                 ),
@@ -1887,7 +1896,7 @@ server <- function(input, output, session) {
 
   # Sample data resets only on EXPLICIT parameter changes (we use direct value
   # comparison so spurious re-fires don't reset the user's hard-earned sample).
-  prev_pop <- reactiveValues(mu = 6, sigma = 1, n = 11)
+  prev_pop <- reactiveValues(mu = 4, sigma = 0.78, n = 11)
   observe({
     mu <- input$pop_mu; sigma <- input$pop_sigma; n <- input$pop_n
     if (is.null(mu) || is.null(sigma) || is.null(n)) return()
@@ -1999,8 +2008,8 @@ server <- function(input, output, session) {
     walk$last_sample <- rnorm(input$pop_n, input$pop_mu, input$pop_sigma)
   })
   observeEvent(input$step9_reset_to_defaults, {
-    updateSliderInput(session, "pop_mu", value = 6)
-    updateSliderInput(session, "pop_sigma", value = 1)
+    updateSliderInput(session, "pop_mu", value = 4)
+    updateSliderInput(session, "pop_sigma", value = 0.78)
     updateSliderInput(session, "pop_n", value = 11)
     updateNumericInput(session, "mu0", value = 4)
     updateRadioButtons(session, "alpha_choice", selected = "0.05")
@@ -2016,8 +2025,8 @@ server <- function(input, output, session) {
   # STEP 1, population plot
   # ============================================================================
   output$popPlot <- renderPlotly({
-    mu    <- input$pop_mu    %||% 6
-    sigma <- input$pop_sigma %||% 1
+    mu    <- input$pop_mu    %||% 4
+    sigma <- input$pop_sigma %||% 0.78
 
     make_band <- function(a, b, color, label) {
       xs <- seq(a, b, length.out = 80)
@@ -2114,8 +2123,8 @@ server <- function(input, output, session) {
   })
 
   output$step2_plot <- renderPlot({
-    mu    <- input$pop_mu    %||% 6
-    sigma <- input$pop_sigma %||% 1
+    mu    <- input$pop_mu    %||% 4
+    sigma <- input$pop_sigma %||% 0.78
     s     <- walk$last_sample
     xlim  <- c(mu - 4 * sigma, mu + 4 * sigma)
     y_max <- dnorm(mu, mu, sigma)
@@ -2188,8 +2197,8 @@ server <- function(input, output, session) {
   observeEvent(input$repeat_reset, { walk$repeat_means <- numeric(0) })
 
   output$step3_plot <- renderPlot({
-    mu    <- input$pop_mu    %||% 6
-    sigma <- input$pop_sigma %||% 1
+    mu    <- input$pop_mu    %||% 4
+    sigma <- input$pop_sigma %||% 0.78
     means <- walk$repeat_means
     xlim  <- c(mu - 4 * sigma, mu + 4 * sigma)
 
@@ -2281,16 +2290,27 @@ server <- function(input, output, session) {
   observeEvent(input$draw_reset, { walk$many_means <- numeric(0) })
 
   output$step4_plot <- renderPlot({
-    mu    <- input$pop_mu    %||% 6
-    sigma <- input$pop_sigma %||% 1
+    mu    <- input$pop_mu    %||% 4
+    sigma <- input$pop_sigma %||% 0.78
     n     <- input$pop_n     %||% 11
     se    <- sigma / sqrt(n)
     means <- walk$many_means
-    xlim  <- c(mu - 4 * sigma, mu + 4 * sigma)
+
+    # Zoom the x-axis in on the sampling distribution. With σ ≈ 0.78 and
+    # n = 11, the sampling distribution's full mass sits within roughly
+    # μ ± 4·SE = μ ± 0.94, while the population's mass extends to μ ± 4·σ
+    # = μ ± 3.12. Plotting the full population range buries the histogram
+    # of sample means in a thin sliver. We bias the visible range toward
+    # the sampling distribution: take half_width = max(2·σ, 6·SE) so that
+    # the sampling distribution always gets at least 6 SE of headroom and
+    # the population overlay remains visible.
+    half_width <- max(2 * sigma, 6 * se)
+    xlim  <- c(mu - half_width, mu + half_width)
 
     x  <- seq(xlim[1], xlim[2], length.out = 400)
     th <- data.frame(x = x, y = dnorm(x, mu, se))
     pop <- data.frame(x = x, y = dnorm(x, mu, sigma))
+    y_max <- max(th$y) * 1.15
 
     g <- ggplot() +
       geom_line(data = pop, aes(x, y),
@@ -2300,22 +2320,22 @@ server <- function(input, output, session) {
       g <- g + geom_histogram(
         data = data.frame(m = means),
         aes(x = m, y = after_stat(density)),
-        binwidth = (xlim[2] - xlim[1]) / 50,
+        binwidth = (xlim[2] - xlim[1]) / 60,
         fill = PAL$samp_pt, colour = "white",
         linewidth = 0.2, alpha = 0.7
       )
     }
     g + geom_line(data = th, aes(x, y),
-                  colour = PAL$theory, linewidth = 1.1, linetype = "dashed") +
+                  colour = PAL$theory, linewidth = 1.3, linetype = "dashed") +
       geom_vline(xintercept = mu, colour = PAL$pop_dark,
                  linetype = "dashed", linewidth = 0.4) +
       annotate("label", x = mu, y = max(th$y) * 1.07,
                      label = sprintf("μ = %g", mu), colour = PAL$pop_dark, fill = "white", label.size = NA,
                  label.r = unit(0.15, "lines"), alpha = 0.95, size = 4) +
-      scale_x_continuous(limits = xlim) +
+      coord_cartesian(xlim = xlim, ylim = c(0, y_max), expand = FALSE) +
       labs(x = "Sample mean (x̄)", y = "Density",
            subtitle = sprintf(
-             "Population SD = %.2f. Theoretical SE (σ/√n) = %.2f.",
+             "Population SD = %.2f. Theoretical SE (σ/√n) = %.2f. The dashed red curve is the theoretical sampling distribution.",
              sigma, se)) +
       base_theme()
   }, res = 96)
@@ -2330,7 +2350,7 @@ server <- function(input, output, session) {
   # STEP 5, live equation, history plot, live calc
   # ============================================================================
   step5_se <- reactive({
-    sigma <- input$pop_sigma %||% 1
+    sigma <- input$pop_sigma %||% 0.78
     n     <- input$pop_n     %||% 11
     s     <- if (length(walk$last_sample) > 0) sd(walk$last_sample) else NA_real_
     list(sigma = sigma, n = n, s = s,
@@ -2366,7 +2386,7 @@ server <- function(input, output, session) {
 
   output$step5_history_plot <- renderPlot({
     hist <- walk$se_history
-    mu   <- input$pop_mu %||% 6
+    mu   <- input$pop_mu %||% 4
     if (length(hist) == 0) {
       return(
         ggplot() +
@@ -2439,8 +2459,8 @@ server <- function(input, output, session) {
     if (length(s) == 0) {
       # Fallback: pretend we have a sample at the current population to keep
       # the figure visible even before the first manual run.
-      mu    <- input$pop_mu    %||% 6
-      sigma <- input$pop_sigma %||% 1
+      mu    <- input$pop_mu    %||% 4
+      sigma <- input$pop_sigma %||% 0.78
       n     <- input$pop_n     %||% 11
       list(have_sample = FALSE,
            mu0 = mu0, n = n, xbar = mu, s = sigma, se = sigma / sqrt(n),

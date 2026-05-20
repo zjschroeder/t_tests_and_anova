@@ -448,7 +448,7 @@ source_paired_server <- function(input, output, session) {
             "). Step 5 turns that estimate into a standard error."
           )
         ),
-        math_block("M_D \\;\\sim\\; \\mathcal{N}\\!\\left(\\mu_D,\\ \\dfrac{\\sigma_D}{\\sqrt{n}}\\right)\\ \\text{(by the CLT)}"),
+        math_block("M_D \\;\\sim\\; N\\!\\left(\\mu_D,\\ \\dfrac{\\sigma_D}{\\sqrt{n}}\\right)\\ \\text{(by the CLT)}"),
         plotOutput("paired_step4_plot", height = "300px"),
         callout_warm(
           tags$b("The two distributions that get confused most. "),
