@@ -194,7 +194,7 @@ source_anova_server <- function(input, output, session) {
     withMathJax(div(class = "container-fluid", style = "max-width: 1240px; padding-top: 16px;",
 
       scenario_card(
-        "Build a between-subjects one-way ANOVA, from the ground up",
+        "Build a between-subjects one-way ANOVA",
         lab_label = "Running example: America's mood map",
         p(style = "margin-bottom:6px;",
           "Analysis of variance (ANOVA) is what we reach for when there are ",
@@ -220,7 +220,7 @@ source_anova_server <- function(input, output, session) {
           "for the walkthrough cover 49 states, distributed unevenly across ",
           "four regions: Northeast (n = 9), Midwest (n = 12), South (n = ",
           "16), West (n = 12). The full F-test we work out yields F(3, 45) ",
-          "= 10.38, p < .001."),
+          "= 11.22, p < .001."),
         p(style = "margin-bottom:0;",
           tags$b("How this compares to the t-tests. "),
           "The test statistic changes from t to F, but the underlying ",
@@ -235,10 +235,9 @@ source_anova_server <- function(input, output, session) {
 
       # ------ STEP 1 -------------------------------------------------------
       step_container(
-        1, "The null world: \\(H_0:\\ \\mu_1 = \\mu_2 = \\cdots = \\mu_k\\)",
+        1, "A world where no group differs: \\(H_0:\\ \\mu_1 = \\mu_2 = \\cdots = \\mu_k\\)",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "Consider ", math_inline("k"),
             " independent populations with means ",
             math_inline("\\mu_1, \\mu_2, \\ldots, \\mu_k"),
@@ -247,27 +246,24 @@ source_anova_server <- function(input, output, session) {
             math_inline("k"),
             " population means are equal to one another. The alternative ",
             "hypothesis specifies that at least one pair of population ",
-            "means differs. The phrasing of the alternative is worth ",
-            "pausing on. It does not assert that all means differ, only ",
-            "that some pair of them does."
+            "means differs. Note that it does not assert that all means ",
+            "differ, only that some pair of them does."
           ),
           example = tagList(
-            tags$b("In human words. "),
-            "Picture a world in which the three treatment groups all draw ",
-            "from populations with the same average neuroticism score, so that the ",
-            "regional label has no real effect on depression. Even in that ",
-            "world, our three sample means will look a little different ",
+            "Picture a world in which the four regional groups all draw ",
+            "from populations with the same average neuroticism score, so ",
+            "that the regional label makes no real difference. Even in that ",
+            "world, our four sample means will look a little different ",
             "from each other simply because each group's sample is random. ",
             "The test asks whether the variation in the group means is ",
             "large enough that sampling luck on its own is an unreasonable ",
             "explanation for it."
           ),
           tldr = tagList(
-            tags$b("Case study (mood map). "),
             "For the mood-map study, H₀ specifies that ",
-            math_inline("\\mu_{\\text{NE}} = \\mu_{\\text{MW}} = \\mu_{\\text{W}}"),
-            ". H₁ specifies that at least one of these three means differs ",
-            "from another. Rejecting H₀ does not tell us that all three ",
+            math_inline("\\mu_{\\text{NE}} = \\mu_{\\text{MW}} = \\mu_{\\text{S}} = \\mu_{\\text{W}}"),
+            ". H₁ specifies that at least one of these four means differs ",
+            "from another. Rejecting H₀ does not tell us that all four ",
             "differ. It tells us only that some pair does, and a separate ",
             "post-hoc procedure (Tukey HSD, in Step 9) is needed to ",
             "identify which pairs are driving the omnibus result."
@@ -298,7 +294,7 @@ source_anova_server <- function(input, output, session) {
                 "whether the observed spread of regional means is too large ",
                 "to credit a single population mean.")))),
         callout_warm(
-          tags$b("Worth pausing on the alternative hypothesis. "),
+          tags$b("What rejecting H₀ does and does not tell you. "),
           "H₁ asserts that at least one pair of means differs, which is a ",
           "weaker claim than the claim that all of them differ. When we ",
           "reject H₀ with k = 4 groups, the result tells us that some ",
@@ -314,7 +310,6 @@ source_anova_server <- function(input, output, session) {
         2, "Why not just run a bunch of t-tests? (Family-wise error)",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "With ", math_inline("k"), " groups there are ",
             math_inline("\\binom{k}{2} = k(k-1)/2"),
             " possible pairwise comparisons. If each comparison is tested ",
@@ -328,7 +323,6 @@ source_anova_server <- function(input, output, session) {
             "ANOVA addresses the question with one test, at one α."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "Each additional t-test creates another opportunity for a false ",
             "positive to slip through. With three t-tests at α = .05, the ",
             "chance of at least one of them coming up significant under ",
@@ -337,7 +331,6 @@ source_anova_server <- function(input, output, session) {
             "inflation."
           ),
           tldr = tagList(
-            tags$b("Case study (mood map). "),
             "With k = 4 groups (Northeast, Midwest, South, West), there are ",
             "six possible pairwise t-tests. Running all three at α = .05 ",
             "would inflate the family-wise error rate to roughly 14%. The ",
@@ -350,12 +343,11 @@ source_anova_server <- function(input, output, session) {
         math_block("\\text{family-wise } \\alpha \\;\\leq\\; 1 - (1-\\alpha)^c"),
         plotOutput("anova_step2_plot", height = "300px"),
         callout_warm(
-          tags$b("This is the motivating reason ANOVA exists. "),
+          tags$b("This is why ANOVA exists. "),
           "Everything that follows in the rest of this tab (the F-statistic, ",
-          "the sums of squares, the mean squares) is bookkeeping in the ",
-          "service of one goal. We want a single test, at a single α, that ",
-          "asks whether the group means are too spread out to attribute ",
-          "to sampling luck."
+          "the sums of squares, the mean squares) is bookkeeping for a ",
+          "single test, at a single α, of whether the group means are too ",
+          "spread out to attribute to sampling luck."
         ),
         id_prefix = "anova-step"
       ),
@@ -365,7 +357,6 @@ source_anova_server <- function(input, output, session) {
         3, "Run one study: \\(k\\) group means and the grand mean",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "Within each group ", math_inline("j"),
             " we compute the group mean ", math_inline("M_j"),
             " and record the group sample size ", math_inline("n_j"),
@@ -376,22 +367,20 @@ source_anova_server <- function(input, output, session) {
             ", a weighted average of the group means."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "Every group has its own average. If we stack all of the ",
             "scores together and compute one big average across the whole ",
             "dataset, ignoring group membership, we get the grand mean. ",
-            "The interesting question for ANOVA is how far the individual ",
+            "ANOVA asks how far the individual ",
             "group means sit from that grand mean. Larger displacements ",
             "are evidence of group-level effects. Smaller displacements are ",
             "consistent with H₀."
           ),
           tldr = tagList(
-            tags$b("Case study (mood map). "),
             "The four regional means for state-level neuroticism are ",
-            math_inline("M_{\\text{NE}} = 60.91"),
-            ", ", math_inline("M_{\\text{MW}} = 48.61"),
-            ", ", math_inline("M_{\\text{S}} = 51.23"),
-            ", and ", math_inline("M_{\\text{W}} = 41.61"),
+            math_inline("M_{\\text{NE}} = 60.90"),
+            ", ", math_inline("M_{\\text{MW}} = 48.60"),
+            ", ", math_inline("M_{\\text{S}} = 51.17"),
+            ", and ", math_inline("M_{\\text{W}} = 41.58"),
             ". The group sample sizes are 9, 12, 16, and 12 respectively, ",
             "for a total of N = 49 states. The grand mean works out to ",
             sprintf("%.2f", LAB7$M_grand),
@@ -425,7 +414,6 @@ source_anova_server <- function(input, output, session) {
         4, "The big idea: total variation splits into between + within",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "The total sum of squares can be partitioned exactly into two ",
             "additive pieces. The first is ",
             math_inline("\\text{SS}_{\\text{total}} = \\sum_{i,j}(x_{ij} - M_{\\cdot})^2"),
@@ -443,7 +431,6 @@ source_anova_server <- function(input, output, session) {
             "."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "Every observation in the dataset deviates from the grand mean ",
             "by some amount. That deviation can be split into two pieces. ",
             "Part of it is the gap between the observation's group mean and ",
@@ -455,7 +442,6 @@ source_anova_server <- function(input, output, session) {
             "statistic in Step 6 asks which piece is doing the heavy lifting."
           ),
           tldr = tagList(
-            tags$b("Case study (mood map). "),
             "For the mood-map study, the SS values are ",
             sprintf("SS_total = %.1f, SS_between = %.1f, and SS_within = %.1f.",
                     LAB7$SS_total, LAB7$SS_between, LAB7$SS_within),
@@ -488,7 +474,6 @@ source_anova_server <- function(input, output, session) {
         5, "Mean squares: variance estimates from each piece",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "A mean square is a sum of squares divided by its degrees of ",
             "freedom. The between-groups mean square is ",
             math_inline("\\text{MS}_{\\text{between}} = \\text{SS}_{\\text{between}}/(k - 1)"),
@@ -501,7 +486,6 @@ source_anova_server <- function(input, output, session) {
             " we have been using throughout the course."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "A mean square is a variance, with the spread computed per ",
             "degree of freedom available. MS_between tells us roughly how ",
             "much the group means scatter around the grand mean. MS_within ",
@@ -511,7 +495,6 @@ source_anova_server <- function(input, output, session) {
             "next step."
           ),
           tldr = tagList(
-            tags$b("Case study (mood map). "),
             sprintf("For the mood-map study, df_between = k − 1 = %d and df_within = N − k = %d. ",
                     LAB7$df_b, LAB7$df_w),
             sprintf("That gives MS_between = %.1f/%d = %.2f and MS_within = %.1f/%d = %.2f.",
@@ -566,7 +549,6 @@ source_anova_server <- function(input, output, session) {
         6, "Putting it together: the F-statistic",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "The F-statistic is the ratio of between-group variance to ",
             "within-group variance: ",
             math_inline("F = \\dfrac{\\text{MS}_{\\text{between}}}{\\text{MS}_{\\text{within}}}"),
@@ -575,7 +557,6 @@ source_anova_server <- function(input, output, session) {
             ". The F-distribution is non-negative and right-skewed."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "F is between-group spread divided by within-group spread. ",
             "When the groups have the same average, both pieces estimate the same ",
             "underlying noise, so F sits near 1 (with some sampling wiggle ",
@@ -585,11 +566,10 @@ source_anova_server <- function(input, output, session) {
             "evidence against H₀."
           ),
           tldr = tagList(
-            tags$b("Case study (mood map). "),
-            sprintf("Plugging the mood-map study's numbers in gives F = %.2f / %.2f \\approx %.2f. ",
+            sprintf("Plugging the mood-map study's numbers in gives F = %.2f / %.2f ≈ %.2f. ",
                     LAB7$MS_b, LAB7$MS_w, LAB7$F),
-            "That value is more than twenty times the no-effect baseline ",
-            "of 1, which already signals a sizable treatment effect even ",
+            "That value is more than ten times the no-effect baseline ",
+            "of 1, which already signals a sizable regional effect even ",
             "before we look up the critical value."
           )
         ),
@@ -622,7 +602,7 @@ source_anova_server <- function(input, output, session) {
                       "the t-test to three or more groups, with the same ",
                       "underlying signal-divided-by-noise logic.")))),
         callout_warm(
-          tags$b("One asymmetry worth flagging. "),
+          tags$b("The F-test is right-tailed only. "),
           "F is bounded below by zero (variance estimates can never be ",
           "negative) and is right-skewed, with most of its mass piled up ",
           "near 1 and a long tail extending out to the right. The ",
@@ -639,13 +619,11 @@ source_anova_server <- function(input, output, session) {
         7, "Setting alpha",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "Alpha is set to .05 in PSY 302, following standard convention. ",
             "F-tests are right-tailed, so the entire α-budget is allocated ",
             "to the upper tail of the F-distribution."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "The F-test does not have a two-tailed version. Values of F ",
             "below 1 do not lead to rejection of H₀, since they correspond ",
             "to between-group spread being smaller than within-group ",
@@ -654,8 +632,7 @@ source_anova_server <- function(input, output, session) {
             "entirely in the upper tail of the distribution."
           ),
           tldr = tagList(
-            tags$b("Case study (mood map). "),
-            "the mood-map study uses α = .05, right-tailed, the PSY 302 default."
+            "The mood-map study uses α = .05, right-tailed, following the PSY 302 default."
           )
         ),
         math_block("\\Pr(F \\geq F_{\\text{crit}} \\mid H_0) \\;=\\; \\alpha"),
@@ -667,7 +644,6 @@ source_anova_server <- function(input, output, session) {
         8, "Critical F value, df = (\\(k-1,\\ N-k\\))",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "The critical F value bounding the rejection region is ",
             math_inline("F_{\\text{crit}} = F_{1-\\alpha,\\ df_b,\\ df_w}"),
             ", which can be read from a two-way F-table indexed by ",
@@ -677,7 +653,6 @@ source_anova_server <- function(input, output, session) {
             math_inline("\\texttt{qf}"), "."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "F-crit is the right-tail cutoff. Observed F values past this ",
             "cutoff fall into the rejection region. Larger samples produce ",
             "smaller cutoffs, and larger numerator df also lowers the ",
@@ -685,7 +660,6 @@ source_anova_server <- function(input, output, session) {
             "for genuine differences in means to register."
           ),
           tldr = tagList(
-            tags$b("Case study (mood map). "),
             sprintf("With df = (%d, %d) and α = .05, F_crit ≈ %.2f.",
                     LAB7$df_b, LAB7$df_w, LAB7$F_cv)
           )
@@ -700,7 +674,6 @@ source_anova_server <- function(input, output, session) {
         9, "Decision + post-hoc (Tukey HSD)",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "We reject ", math_inline("H_0"), " when ",
             math_inline("F \\geq F_{\\text{crit}}"),
             ". When H₀ is rejected, a post-hoc procedure is needed to ",
@@ -710,28 +683,22 @@ source_anova_server <- function(input, output, session) {
             "rate across all pairs."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "Rejecting the omnibus H₀ tells us that some pair of group ",
             "means differs. It does not tell us which pair, or how many. ",
             "Tukey HSD runs the pairwise comparisons with the appropriate ",
             "correction built in, so that we can identify the significant ",
-            "pairs without inflating the family-wise error rate back up to ",
-            "the value the omnibus test was specifically designed to keep ",
-            "in check."
+            "pairs without re-inflating the family-wise error rate."
           ),
           tldr = tagList(
-            tags$b("Case study (mood map). "),
-            sprintf("The mood-map study yielded F(%d, %d) = %.2f, which comfortably exceeds the critical value of F_crit ≈ %.2f. We therefore ",
+            sprintf("The mood-map study yielded F(%d, %d) = %.2f, which is well past F_crit ≈ %.2f. We therefore ",
                     LAB7$df_b, LAB7$df_w, LAB7$F, LAB7$F_cv),
             tags$b("reject H₀"),
             ", with p < .001. The omnibus result tells us some pair of ",
             "regional means differs, but a follow-up Tukey HSD test is ",
             "needed to identify which. The table below summarizes the six ",
-            "pairwise comparisons. The Northeast differs significantly from ",
-            "every other region. The Midwest and South do not differ from ",
-            "one another reliably, but both differ from the Northeast and ",
-            "the West. The West differs significantly from the Northeast, ",
-            "the Midwest, and the South."
+            "pairwise comparisons. The Northeast and the West each differ ",
+            "significantly from every other region; the Midwest and the ",
+            "South do not differ reliably from one another."
           )
         ),
         math_block("\\text{Reject } H_0 \\;\\Longleftrightarrow\\; F \\geq F_{\\text{crit}}"),
@@ -762,7 +729,7 @@ source_anova_server <- function(input, output, session) {
               "pooled MS_within from the omnibus ANOVA as the noise ",
               "estimate. The values below are simple pairwise t-tests, ",
               "not the studentized-range Tukey correction; the ranking of ",
-              "pairs is essentially the same."),
+              "pairs is nearly the same."),
             div(class = "table-responsive",
                 tags$table(class = "table table-sm mb-0",
                   tags$thead(tags$tr(
@@ -771,23 +738,23 @@ source_anova_server <- function(input, output, session) {
                     tags$th("Decision (α = .05)"))),
                   tags$tbody(
                     tags$tr(tags$td("Northeast vs West"),
-                            tags$td("19.30"), tags$td("5.51"),
+                            tags$td("19.32"), tags$td("5.73"),
                             tags$td("< .001"), tags$td("Reject")),
                     tags$tr(tags$td("Northeast vs Midwest"),
-                            tags$td("12.30"), tags$td("3.51"),
+                            tags$td("12.30"), tags$td("3.65"),
                             tags$td(".001"), tags$td("Reject")),
                     tags$tr(tags$td("Northeast vs South"),
-                            tags$td("9.68"), tags$td("2.92"),
-                            tags$td(".005"), tags$td("Reject")),
+                            tags$td("9.73"), tags$td("3.05"),
+                            tags$td(".004"), tags$td("Reject")),
                     tags$tr(tags$td("South vs West"),
-                            tags$td("9.62"), tags$td("3.18"),
-                            tags$td(".003"), tags$td("Reject")),
+                            tags$td("9.60"), tags$td("3.29"),
+                            tags$td(".002"), tags$td("Reject")),
                     tags$tr(tags$td("Midwest vs West"),
-                            tags$td("7.00"), tags$td("2.16"),
-                            tags$td(".036"), tags$td("Reject")),
+                            tags$td("7.02"), tags$td("2.25"),
+                            tags$td(".029"), tags$td("Reject")),
                     tags$tr(tags$td("Midwest vs South"),
-                            tags$td("−2.62"), tags$td("−0.86"),
-                            tags$td(".390"), tags$td("Fail to reject")))))),
+                            tags$td("−2.57"), tags$td("−0.88"),
+                            tags$td(".382"), tags$td("Fail to reject")))))),
         id_prefix = "anova-step"
       ),
 
@@ -799,13 +766,13 @@ source_anova_server <- function(input, output, session) {
           tags$blockquote(style = "font-style:italic; margin-left:8px; border-left:4px solid #d6c08a; padding-left:12px;",
             "Using a between-subjects one-way ANOVA on state-level NEO ",
             "neuroticism scores, we found that the overall effect of U.S. ",
-            "Census region was significant, F(3, 45) = 10.38, p < .001. ",
-            "Pairwise comparisons revealed that the Northeast (M = 60.91, ",
-            "SD = 5.22) scored higher than the Midwest (M = 48.61, SD = ",
-            "6.42), the South (M = 51.23, SD = 10.64), and the West (M = ",
-            "41.61, SD = 6.53), all ps ≤ .005. The West scored significantly ",
+            "Census region was significant, F(3, 45) = 11.22, p < .001. ",
+            "Pairwise comparisons revealed that the Northeast (M = 60.90, ",
+            "SD = 5.15) scored higher than the Midwest (M = 48.60, SD = ",
+            "6.27), the South (M = 51.17, SD = 9.90), and the West (M = ",
+            "41.58, SD = 6.84), all ps ≤ .004. The West scored significantly ",
             "lower than every other region (all ps < .05). The Midwest and ",
-            "South did not differ from one another (p = .390)."),
+            "South did not differ from one another (p = .382)."),
           p(style = "margin-bottom:0;",
             tags$b("Template: "),
             "Using a [test], the overall effect of [IV] on [DV] was ",
@@ -824,10 +791,10 @@ source_anova_server <- function(input, output, session) {
             "mood-map result would shift if the inputs changed. ANOVA's ",
             "moving parts are the group means, the within-group SDs, the ",
             "group sample sizes, and the number of groups. Each one ",
-            "leverages the F-statistic in its own way."),
+            "moves the F-statistic in a different way."),
           tags$ul(style = "margin-bottom:0; padding-left:20px; line-height:1.7;",
             tags$li(tags$b("Bigger n in every group. "),
-              "Imagine each region had 100 states instead of 9–16. ",
+              "Imagine each region contributed 100 observations instead of 9–16. ",
               "MS_within would be estimated more precisely, df_w would ",
               "grow, the F-critical value would shrink, and the same ",
               "regional mean spread would produce a much larger F-ratio. ",
@@ -838,8 +805,8 @@ source_anova_server <- function(input, output, session) {
               "smaller F-ratio, and the real regional effect can hide ",
               "behind within-region noise."),
             tags$li(tags$b("Group means closer together. "),
-              "Suppose the Northeast mean were 55 instead of 60.91, and ",
-              "the West mean 45 instead of 41.61. MS_between would ",
+              "Suppose the Northeast mean were 55 instead of 60.90, and ",
+              "the West mean 45 instead of 41.58. MS_between would ",
               "shrink, F would shrink, and a clear effect could become ",
               "ambiguous."),
             tags$li(tags$b("More groups (larger k). "),
@@ -916,8 +883,8 @@ source_anova_server <- function(input, output, session) {
           ),
           list(
             prompt = tagList(tags$b("Step 2. "),
-              "Why would running three pairwise t-tests in place of one ",
-              "ANOMA be a bad idea here?"),
+              "Why would running six pairwise t-tests in place of one ",
+              "ANOVA be a bad idea here?"),
             solution = tagList(
               p("With four groups there are six possible pairwise ",
                 "comparisons. Running each at α = .05 inflates the ",
@@ -967,7 +934,7 @@ source_anova_server <- function(input, output, session) {
             prompt = tagList(tags$b("Step 6. "),
               "Compute the F-statistic."),
             solution = tagList(
-              p(sprintf("F = MS_between / MS_within = %.2f / %.2f \\approx %.2f.",
+              p(sprintf("F = MS_between / MS_within = %.2f / %.2f ≈ %.2f.",
                         CANTRIL$MS_b, CANTRIL$MS_w, CANTRIL$F)),
               p("That is more than thirty times the no-effect baseline of ",
                 "one, which is a clear signal that the regions do not all ",

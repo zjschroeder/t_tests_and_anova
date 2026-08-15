@@ -24,7 +24,7 @@ SEAGULL <- local({
   t_obs  <- M_D / se
   df_v   <- n - 1
   p_val  <- 2 * (1 - pt(abs(t_obs), df_v))
-  list(participants = c("A", "B", "C", "D", "E", "F"),
+  list(subjects = c("A", "B", "C", "D", "E", "F"),
        before = before, after = after, D = D, n = n,
        M_D = M_D, SS_D = SS_D, s_D = s_D, se = se,
        t = t_obs, df = df_v, p = p_val,
@@ -167,7 +167,7 @@ source_paired_server <- function(input, output, session) {
     withMathJax(div(class = "container-fluid", style = "max-width: 1240px; padding-top: 16px;",
 
       scenario_card(
-        "Build a paired-samples t-test, from the ground up",
+        "Build a paired-samples t-test",
         lab_label = "Running example: staring down seagulls",
         p(style = "margin-bottom:6px;",
           "The paired t-test is what we reach for when the ", tags$b("same subjects"),
@@ -188,23 +188,21 @@ source_paired_server <- function(input, output, session) {
           "throughout this tab use a six-seagull subset of the same data ",
           "to keep the arithmetic small enough to do by hand."),
         p(style = "margin-bottom:0;",
-          tags$b("Worth holding onto across every step. "),
+          tags$b("Keep this in mind at every step. "),
           "A paired-samples t-test ", tags$em("is"),
           " a single-sample t-test in disguise. Once we compute the ",
           "difference scores for each seagull, the rest of the procedure ",
           "is exactly the procedure from Tab 1, with ", math_inline("M_D"),
           " standing in for ", math_inline("M"), " and 0 standing in for ",
           math_inline("\\mu_0"),
-          ". You already know how to do this. You are just calling the ",
-          "ingredients by different names.")
+          ". You already know how to do this; only the labels are new.")
       ),
 
       # ------ STEP 1 -------------------------------------------------------
       step_container(
-        1, "The null world: \\(H_0: \\mu_D = 0\\)",
+        1, "A world where nothing changes: \\(H_0: \\mu_D = 0\\)",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "Let ", math_inline("D_i = X_i - Y_i"),
             " denote the within-subject difference for subject ",
             math_inline("i"),
@@ -218,7 +216,6 @@ source_paired_server <- function(input, output, session) {
             math_inline("H_1: \\mu_D \\neq 0"), "."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "Picture a world where the treatment does nothing at all. ",
             "Different people would still change in different directions ",
             "between the before and after measurements (some up, some ",
@@ -230,7 +227,6 @@ source_paired_server <- function(input, output, session) {
             "inside it, or whether it is too large to plausibly belong there."
           ),
           tldr = tagList(
-            tags$b("Case study (seagulls). "),
             "H₀ in the seagull study says that, in the seagull population, ",
             "being stared at does nothing on average to a seagull's ",
             "approach time. H₁ says the average within-bird change in the ",
@@ -252,16 +248,16 @@ source_paired_server <- function(input, output, session) {
               column(4, stat_card("μ_D (population mean change)",
                                   "0 under H₀")),
               column(4, stat_card("σ_D (population SD of changes)",
-                                  "unknown; estimated as s_D ≈ 4.87")),
+                                  "unknown; estimated as SD_D ≈ 4.87")),
               column(4, stat_card("n (seagulls in subset)",
                                   LAB6$n, key = TRUE)))),
         callout_warm(
-          tags$b("Worth pausing on. "),
+          tags$b("Note. "),
           "The population the test cares about here is a population of ",
           tags$em("difference scores"), ", which is a different kind of object ",
           "from the population of raw before-treatment scores or the ",
           "population of raw after-treatment scores. By computing each ",
-          "subject's within-person change, we have converted a two-condition ",
+          "subject's within-subject change, we have converted a two-condition ",
           "comparison into a one-sample comparison against the value zero. ",
           "That conversion is the conceptual move that makes the paired ",
           "t-test work, and it is also what lets us reuse everything we ",
@@ -275,8 +271,7 @@ source_paired_server <- function(input, output, session) {
         2, "Run one study: collect pairs, compute \\(D_i\\) and \\(M_D\\)",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
-            "For each of n participants, we record both measurements and ",
+            "For each of n subjects, we record both measurements and ",
             "compute ", math_inline("D_i = X_i - Y_i"),
             ". From the n difference scores we then compute the sample mean ",
             math_inline("M_D = \\frac{1}{n} \\sum_{i=1}^{n} D_i"),
@@ -284,10 +279,9 @@ source_paired_server <- function(input, output, session) {
             math_inline("\\text{SS}_D = \\sum (D_i - M_D)^2"),
             ", from which the sample standard deviation of the differences ",
             "follows as ",
-            math_inline("s_D = \\sqrt{\\text{SS}_D/(n-1)}"), "."
+            math_inline("\\text{SD}_D = \\sqrt{\\text{SS}_D/(n-1)}"), "."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "Subtract each person's after-score from their before-score, ",
             "write that number next to their name, and then average those ",
             "n numbers. That single average is a one-number summary of how ",
@@ -295,7 +289,6 @@ source_paired_server <- function(input, output, session) {
             "measurement occasion to the next."
           ),
           tldr = tagList(
-            tags$b("Case study (seagulls). "),
             "Doing this for the six seagulls in our subset gives the ",
             "following differences (look-away minus stare, in seconds). ",
             "Seagull A: 80 − 70 = 10. Seagull B: 68 − 63 = 5. C: 92 − 74 = ",
@@ -305,7 +298,7 @@ source_paired_server <- function(input, output, session) {
             " seconds. The sum of squared deviations from the mean is ",
             math_inline("\\text{SS}_D \\approx 118.83"),
             ", and the resulting sample SD of the differences is ",
-            math_inline("s_D = \\sqrt{118.83/5} \\approx 4.87"),
+            math_inline("\\text{SD}_D = \\sqrt{118.83/5} \\approx 4.87"),
             " seconds."
           )
         ),
@@ -324,23 +317,23 @@ source_paired_server <- function(input, output, session) {
             fluidRow(
               column(3, stat_card("SS_D",     sprintf("%.0f", LAB6$SS_D))),
               column(3, stat_card("df = n−1", LAB6$df)),
-              column(3, stat_card("s_D",      sprintf("%.3f", LAB6$s_D))),
+              column(3, stat_card("SD_D",     sprintf("%.3f", LAB6$s_D))),
               column(3, ""))
         ),
         callout_warm(
-          tags$b("A common point of confusion worth heading off now. "),
+          tags$b("A common point of confusion. "),
           "The cluster of six green dots in the right-hand plot above shows ",
           "one specific kind of distribution: the ",
           tags$b("sample distribution"),
           " of D-scores in this study. Its spread is ",
-          math_inline("s_D ≈ 4.87"),
+          math_inline("\\text{SD}_D ≈ 4.87"),
           ". A different distribution will appear over the next few steps: ",
           "the ", tags$b("sampling distribution"), " of ",
           math_inline("M_D"),
           " under repeated sampling. These two distributions are easy to ",
           "conflate (especially because they share a name root), but they ",
-          "describe different things, and most of the conceptual work of a ",
-          "paired t-test lives in keeping them separate."
+          "describe different things, and the rest of this tab depends on ",
+          "keeping them separate."
         ),
         id_prefix = "paired-step"
       ),
@@ -350,7 +343,6 @@ source_paired_server <- function(input, output, session) {
         3, "Run the study again. And again. (Sampling variability of \\(M_D\\))",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "Each independent replication of a study yields a different ",
             math_inline("M_D"),
             " because each replication draws a different sample of n ",
@@ -364,18 +356,16 @@ source_paired_server <- function(input, output, session) {
             "have a sampling variability on its own."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "Picture six different research groups around the country, each ",
             "of them running the seagull study with their own six seagulls. ",
             "Each group would compute a slightly different ",
             math_inline("M_D"),
             ". They share the same protocol and the same target population, ",
             "and yet they end up with different numbers, because no two of ",
-            "them happened to sample the same six people. That run-to-run ",
+            "them happened to sample the same six seagulls. That run-to-run ",
             "wiggle in ", math_inline("M_D"), " is sampling variability."
           ),
           tldr = tagList(
-            tags$b("Case study (seagulls). "),
             "We can build intuition about this by simulating what those ",
             "imagined re-runs would have looked like. The buttons below ",
             "draw fresh samples of six subjects from a population with the ",
@@ -405,7 +395,6 @@ source_paired_server <- function(input, output, session) {
         4, "If we ran it many times: the sampling distribution of \\(M_D\\)",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "The ", tags$b("sampling distribution of mean difference scores"),
             " is the probability distribution of all possible values of ",
             math_inline("M_D"), " for a fixed sample size ", math_inline("n"),
@@ -421,21 +410,19 @@ source_paired_server <- function(input, output, session) {
             "are distributed."
           ),
           example = tagList(
-            tags$b("In human words. "),
-            "Imagine that, instead of six clinics replicating the seagull study, we had ",
+            "Imagine that, instead of six research groups replicating the seagull study, we had ",
             "500 of them. We could collect all 500 of their reported ",
             math_inline("M_D"),
             " values and pile them up in a histogram. The histogram we ",
             "would end up with is the sampling distribution of ",
             math_inline("M_D"),
             ". This is a different object from the histogram in Step 2. ",
-            "The Step 2 histogram showed six dots: the six within-person ",
+            "The Step 2 histogram showed six dots: the six within-subject ",
             "D-scores in one study. The histogram here would show 500 dots: ",
             "the 500 ", math_inline("M_D"),
             " values across imagined re-runs of the whole study."
           ),
           tldr = tagList(
-            tags$b("Case study (seagulls). "),
             "Under H₀, the sampling distribution of ",
             math_inline("M_D"),
             " is centered at zero (because H₀ says ",
@@ -444,7 +431,7 @@ source_paired_server <- function(input, output, session) {
             math_inline("\\sigma_D/\\sqrt{n}"),
             ". We do not know the value of ", math_inline("\\sigma_D"),
             " exactly, but Step 2 gave us an estimate of it (",
-            math_inline("s_D ≈ 4.87"),
+            math_inline("\\text{SD}_D ≈ 4.87"),
             "). Step 5 turns that estimate into a standard error."
           )
         ),
@@ -455,17 +442,16 @@ source_paired_server <- function(input, output, session) {
           tags$br(),
           "• ", tags$b("Sample distribution: "),
           "the six D-scores in our one study. Its spread is ",
-          math_inline("s_D"), ".", tags$br(),
+          math_inline("\\text{SD}_D"), ".", tags$br(),
           "• ", tags$b("Sampling distribution: "),
           "the (imagined) cloud of ", math_inline("M_D"),
           " values across many repeats of the study. Its spread is ",
-          math_inline("s_D/\\sqrt{n}"),
+          math_inline("\\text{SD}_D/\\sqrt{n}"),
           " (the standard error). ", tags$br(),
-          "These are two genuinely different distributions, and most of the ",
+          "These are two different distributions, and most of the ",
           "intuition for hypothesis testing depends on keeping them apart. ",
           "Whenever a description in the rest of this tab refers to ",
-          "\"the distribution,\" it is worth pausing for a moment and ",
-          "asking yourself which of these two is being described."
+          "\"the distribution,\" ask yourself which of the two it means."
         ),
         id_prefix = "paired-step"
       ),
@@ -475,48 +461,45 @@ source_paired_server <- function(input, output, session) {
         5, "How wide is the sampling distribution? Standard error of \\(M_D\\)",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "The standard error of ", math_inline("M_D"),
-            ", typically written ", math_inline("s_{M_D}"),
+            ", typically written ", math_inline("\\text{SE}"),
             ", is the standard deviation of the sampling distribution of ",
             math_inline("M_D"),
             ". We estimate the standard error from our one sample's data ",
             "using the formula ",
-            math_inline("s_{M_D} = s_D/\\sqrt{n}"), "."
+            math_inline("\\text{SE} = \\text{SD}_D/\\sqrt{n}"), "."
           ),
           example = tagList(
-            tags$b("In human words. "),
-            "The two quantities ", math_inline("s_D"), " and ",
-            math_inline("s_{M_D}"),
+            "The two quantities ", math_inline("\\text{SD}_D"), " and ",
+            math_inline("\\text{SE}"),
             " describe two different kinds of scatter, even though they ",
-            "look similar on paper. ", math_inline("s_D"),
+            "look similar on paper. ", math_inline("\\text{SD}_D"),
             " describes how the individual D-scores within one study spread ",
-            "around their average, whereas ", math_inline("s_{M_D}"),
+            "around their average, whereas ", math_inline("\\text{SE}"),
             " describes how the average D-score itself spreads across the ",
             "imagined re-runs of the whole study. The √n in the denominator ",
-            "guarantees that ", math_inline("s_{M_D}"),
-            " is always smaller than ", math_inline("s_D"),
+            "guarantees that ", math_inline("\\text{SE}"),
+            " is always smaller than ", math_inline("\\text{SD}_D"),
             ", and that it shrinks as the sample size grows. Larger studies ",
             "produce more trustworthy estimates of the population average."
           ),
           tldr = tagList(
-            tags$b("Case study (seagulls). "),
-            "For the seagull subset, ", math_inline("s_D \\approx 4.87"),
+            "For the seagull subset, ", math_inline("\\text{SD}_D \\approx 4.87"),
             " and ", math_inline("n = 6"), ", so ",
-            math_inline("s_{M_D} = 4.87/\\sqrt{6} \\approx 1.99"),
+            math_inline("\\text{SE} = 4.87/\\sqrt{6} \\approx 1.99"),
             " seconds. The average within-bird change in approach time ",
             "across imagined re-runs of the study would typically wiggle ",
             "by about two seconds."
           )
         ),
-        math_block("s_{M_D} \\;=\\; \\dfrac{s_D}{\\sqrt{n}}"),
+        math_block("\\text{SE} \\;=\\; \\dfrac{\\text{SD}_D}{\\sqrt{n}}"),
         div(class = "p-3",
             style = "background:#fff; border:1px solid #ddd; border-radius:8px;",
             fluidRow(
-              column(3, stat_card("s_D",  sprintf("%.3f", LAB6$s_D))),
+              column(3, stat_card("SD_D", sprintf("%.3f", LAB6$s_D))),
               column(3, stat_card("n",    LAB6$n)),
               column(3, stat_card("√n",   sprintf("%.3f", sqrt(LAB6$n)))),
-              column(3, stat_card("s_{M_D} = s_D/√n",
+              column(3, stat_card("SE = SD_D/√n",
                                   sprintf("%.3f", LAB6$se), key = TRUE)))),
         callout_warm(
           tags$b("Why √n. "),
@@ -538,7 +521,6 @@ source_paired_server <- function(input, output, session) {
         6, "Putting it together: the paired t-statistic",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "Under ", math_inline("H_0:\\ \\mu_D = 0"),
             ", the standardized distance between the observed ",
             math_inline("M_D"),
@@ -550,12 +532,11 @@ source_paired_server <- function(input, output, session) {
             " divided by its estimated standard error from Step 5."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "The t-statistic is signal divided by noise. The numerator (",
             math_inline("M_D"),
-            ") is the signal portion, which is the average within-person ",
+            ") is the signal portion, which is the average within-subject ",
             "change in our sample. The denominator (",
-            math_inline("s_D/\\sqrt{n}"),
+            math_inline("\\text{SD}_D/\\sqrt{n}"),
             ") is the noise portion, which is the amount that ",
             math_inline("M_D"),
             " ordinarily wiggles just by chance from one study to the next. ",
@@ -565,23 +546,22 @@ source_paired_server <- function(input, output, session) {
             "plausibly have produced it on its own."
           ),
           tldr = tagList(
-            tags$b("Case study (seagulls). "),
             "Plugging the seagull study's numbers into the formula gives ",
-            math_inline("t = M_D / s_{M_D} = 11.17 / 1.99 \\approx 5.61"),
+            math_inline("t = M_D / \\text{SE} = 11.17 / 1.99 \\approx 5.61"),
             ", with ", math_inline("df = n - 1 = 5"),
-            ". The observed average within-person change sits 5.61 ",
+            ". The observed average within-subject change sits 5.61 ",
             "standard errors away from zero. We are about to evaluate ",
             "whether a value that far from zero is plausible under H₀."
           )
         ),
-        math_block("t \\;=\\; \\dfrac{M_D - 0}{s_D/\\sqrt{n}} \\;=\\; \\dfrac{M_D}{s_{M_D}}, \\quad df = n - 1"),
+        math_block("t \\;=\\; \\dfrac{M_D - 0}{\\text{SD}_D/\\sqrt{n}} \\;=\\; \\dfrac{M_D}{\\text{SE}}, \\quad df = n - 1"),
 
         div(class = "row g-3 my-3",
             div(class = "col-md-6",
                 div(class = "p-3 h-100",
                     style = sprintf("background:%s; color:%s; border-radius:8px;",
                                     PAL$info_bg, PAL$info_fg),
-                    tags$b("The paired-collapses-to-one-sample insight."),
+                    tags$b("Paired collapses to one sample."),
                     p(style = "margin-bottom:0;",
                       "Once the difference scores have been computed, the ",
                       "paired t-test ", tags$em("is"),
@@ -591,10 +571,8 @@ source_paired_server <- function(input, output, session) {
                       math_inline("t = (M - \\mu_0)/(s/\\sqrt{n})"),
                       " and substituting ", math_inline("M = M_D"), ", ",
                       math_inline("\\mu_0 = 0"), ", and ",
-                      math_inline("s = s_D"),
-                      " yields exactly the formula in the math box above. ",
-                      "This is one statistical procedure wearing two ",
-                      "different costumes."))),
+                      math_inline("\\text{SD} = \\text{SD}_D"),
+                      " yields exactly the formula in the math box above."))),
             div(class = "col-md-6",
                 div(class = "p-3 h-100",
                     style = sprintf("background:%s; color:%s; border-radius:8px;",
@@ -604,11 +582,11 @@ source_paired_server <- function(input, output, session) {
                       "Subtracting each subject's own baseline removes ",
                       "between-person variability from the denominator. ",
                       "Twin pairs, before/after, matched controls, ",
-                      "within-subject manipulations all rely on the same ",
-                      "logic. People differ from each other in lots of ",
-                      "uninteresting ways, but within-person changes are ",
-                      "comparable across people. As a result, ",
-                      math_inline("s_D"),
+                      "and within-subject manipulations all rely on the same ",
+                      "logic. Subjects differ from each other in lots of ",
+                      "uninteresting ways, but within-subject changes are ",
+                      "comparable across subjects. As a result, ",
+                      math_inline("\\text{SD}_D"),
                       " is typically much smaller than the standard ",
                       "deviation of either condition's raw scores, which is ",
                       "why paired tests usually have more statistical power ",
@@ -636,7 +614,6 @@ source_paired_server <- function(input, output, session) {
         7, "Setting alpha (\\(\\alpha\\))",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "Alpha (α) is the pre-specified probability of rejecting the ",
             "null hypothesis in a world where the null hypothesis is in ",
             "fact true. It controls the long-run rate of Type I errors. ",
@@ -644,7 +621,6 @@ source_paired_server <- function(input, output, session) {
             "α = .05 with a two-tailed alternative."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "Alpha is how much false-alarm risk we are willing to accept ",
             "before running the test. At α = .05, we are deciding in ",
             "advance that we are okay with a 5% chance of rejecting H₀ in ",
@@ -655,8 +631,7 @@ source_paired_server <- function(input, output, session) {
             "between these two failure modes."
           ),
           tldr = tagList(
-            tags$b("Case study (seagulls). "),
-            "the seagull study uses α = .05 with a two-tailed alternative, following ",
+            "The seagull study uses α = .05 with a two-tailed alternative, following ",
             "the PSY 302 default. The α-budget is split evenly between the ",
             "two tails of the sampling distribution, so 2.5% sits in the ",
             "upper tail and 2.5% sits in the lower tail."
@@ -680,7 +655,6 @@ source_paired_server <- function(input, output, session) {
         8, "Critical values: where does the tail begin?",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "For ", math_inline("df = n - 1"),
             " degrees of freedom and a two-tailed test at level α, the ",
             "critical values bounding the rejection region are ",
@@ -691,7 +665,6 @@ source_paired_server <- function(input, output, session) {
             "and on nothing else."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "The critical value is the signal-to-noise cutoff that separates ",
             "\"plausible under H₀\" from \"too extreme to credit H₀ with.\" ",
             "Larger samples produce tighter sampling distributions, which in ",
@@ -700,8 +673,7 @@ source_paired_server <- function(input, output, session) {
             "result."
           ),
           tldr = tagList(
-            tags$b("Case study (seagulls). "),
-            "With ", math_inline("n = 6"), " participants, ",
+            "With ", math_inline("n = 6"), " seagulls, ",
             math_inline("df = n - 1 = 5"),
             ". At α = .05 two-tailed, the critical values bounding the ",
             "rejection region work out to ",
@@ -728,7 +700,6 @@ source_paired_server <- function(input, output, session) {
         9, "The decision: reject \\(H_0\\), or fail to reject?",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "We reject ", math_inline("H_0"), " when ",
             math_inline("|t| \\geq |\\text{CV}|"),
             ", which is equivalent to the condition ",
@@ -738,7 +709,6 @@ source_paired_server <- function(input, output, session) {
             "available verdicts, and \"H₀ is true\" is not one of them."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "We project our observed t-statistic onto the null sampling ",
             "distribution and check where it lands. If it lands past the ",
             "critical value (somewhere in the α-sized tail of the ",
@@ -749,7 +719,6 @@ source_paired_server <- function(input, output, session) {
             "within the range of things H₀ regularly produces."
           ),
           tldr = tagList(
-            tags$b("Case study (seagulls). "),
             "The seagull subset yielded t(5) = 5.61, and |5.61| is ",
             "comfortably larger than the critical value of 2.571, so we ",
             tags$b("reject H₀"),
@@ -787,7 +756,7 @@ source_paired_server <- function(input, output, session) {
           tags$b("Plain-language summary. "),
           "Every paired t-test reduces to the same final move. We line the ",
           "observed signal-to-noise ratio ",
-          math_inline("M_D / s_{M_D}"),
+          math_inline("M_D / \\text{SE}"),
           " up against the critical signal-to-noise value on the null ",
           "sampling distribution. Past the critical value, we reject H₀. ",
           "Inside the critical value, we fail to reject H₀. The phrase ",
@@ -825,24 +794,24 @@ source_paired_server <- function(input, output, session) {
           h3("Now play with the machinery", style = "margin-top:0;"),
           p("The numbers in the seagull walkthrough are fixed, but the ",
             "test's behavior is not. Before you move on to the practice ",
-            "quest, take a few minutes to picture how the result would ",
+            "quest, picture how the result would ",
             "change if the inputs changed. The simulation buttons in ",
-            "Step 3 are the most direct way to experience this: each ",
+            "Step 3 are the most direct way to see this: each ",
             "click draws a new imagined replication, so you can watch ",
             "the cloud of ", math_inline("M_D"),
             " values fill in across imagined re-runs of the study."),
           tags$ul(style = "margin-bottom:0; padding-left:20px; line-height:1.7;",
             tags$li(tags$b("Bigger sample size. "),
               "If we observed 19 seagulls (the original Goumas et al. n) ",
-              "instead of six, ", math_inline("s_{M_D}"),
+              "instead of six, ", math_inline("\\text{SE}"),
               " would shrink by √(19/6) ≈ 1.78. The same ",
               math_inline("M_D"), " of 11 seconds would yield a t-value ",
               "roughly 1.78× bigger, and a smaller p-value. Larger ",
               "samples make the same effect easier to detect."),
             tags$li(tags$b("Bigger or smaller sample SD. "),
-              "Picture the seagull data noisier: each seagull's reaction ",
-              "to the stare varied wildly. ", math_inline("s_D"),
-              " would grow, ", math_inline("s_{M_D}"),
+              "Suppose the seagull data were noisier, with each seagull's ",
+              "reaction to the stare varying wildly. ", math_inline("\\text{SD}_D"),
+              " would grow, ", math_inline("\\text{SE}"),
               " would grow with it, and the t-statistic would shrink ",
               "toward zero. A real effect can disappear under noise."),
             tags$li(tags$b("A different M_D. "),
@@ -875,7 +844,7 @@ source_paired_server <- function(input, output, session) {
         id_prefix = "tab2quest",
         scenario_html = tagList(
           p("Before 2013, most American NICUs identified unnamed newborns ",
-            "using extremely generic temporary labels such as ",
+            "using generic temporary labels such as ",
             tags$em("BabyBoy Smith"), " or ", tags$em("BabyGirl Jones"),
             ". Two infants in the same unit could end up with nearly ",
             "identical chart names, and Adelman and colleagues found that ",
@@ -908,7 +877,7 @@ source_paired_server <- function(input, output, session) {
             )),
           tags$p(style = "margin-top:8px; margin-bottom:0;",
                  tags$b("Summary stats: "),
-                 sprintf("n = %d, M_D = %.2f, SS_D = %.2f, s_D = %.3f.",
+                 sprintf("n = %d, M_D = %.2f, SS_D = %.2f, SD_D = %.3f.",
                          NICU$n, NICU$M_D, NICU$SS_D, NICU$s_D))
         ),
         questions = list(
@@ -925,7 +894,7 @@ source_paired_server <- function(input, output, session) {
           ),
           list(
             prompt = tagList(tags$b("Step 2. "),
-              "Compute M_D and s_D for the ten NICUs. The differences are ",
+              "Compute M_D and SD_D for the ten NICUs. The differences are ",
               "given in the right column of the table above."),
             solution = tagList(
               p("The ten differences are 11, 19, 14, 18, 4, 18, 22, 13, ",
@@ -934,7 +903,7 @@ source_paired_server <- function(input, output, session) {
                 " errors. The deviations from 14.10 squared and summed ",
                 "give ", math_inline("\\text{SS}_D = 248.90"),
                 ", and the sample SD of the differences is ",
-                math_inline("s_D = \\sqrt{248.90/9} \\approx 5.26"), "."))
+                math_inline("\\text{SD}_D = \\sqrt{248.90/9} \\approx 5.26"), "."))
           ),
           list(
             prompt = tagList(tags$b("Step 3. "),
@@ -969,9 +938,9 @@ source_paired_server <- function(input, output, session) {
             prompt = tagList(tags$b("Step 5. "),
               "Compute the standard error of M_D."),
             solution = tagList(
-              p(math_inline("s_{M_D} = s_D/\\sqrt{n} = 5.26/\\sqrt{10}"),
+              p(math_inline("\\text{SE} = \\text{SD}_D/\\sqrt{n} = 5.26/\\sqrt{10}"),
                 ". The square root of 10 is roughly 3.162, so ",
-                math_inline("s_{M_D} \\approx 5.26/3.162 \\approx 1.66"),
+                math_inline("\\text{SE} \\approx 5.26/3.162 \\approx 1.66"),
                 " errors. Across imagined re-runs of the study, the ",
                 "monthly-error-reduction estimate would typically wiggle ",
                 "by about 1.66 errors per NICU."))
@@ -980,9 +949,9 @@ source_paired_server <- function(input, output, session) {
             prompt = tagList(tags$b("Step 6. "),
               "Compute the paired t-statistic."),
             solution = tagList(
-              p(math_inline("t = M_D / s_{M_D} = 14.10 / 1.66 \\approx 8.49"),
+              p(math_inline("t = M_D / \\text{SE} = 14.10 / 1.66 \\approx 8.49"),
                 ". The observed average reduction sits 8.49 standard ",
-                "errors above zero, which is an enormous distance on the ",
+                "errors above zero, far out in the tail of the ",
                 "null sampling distribution."))
           ),
           list(
@@ -1022,7 +991,7 @@ source_paired_server <- function(input, output, session) {
                 " The intervention reduced errors. Adelman and colleagues ",
                 "(2015) report the same direction of effect in the full ",
                 "study, supporting the conclusion that more distinctive ",
-                "chart names reduce medication mix-ups."))
+                "chart names reduce wrong-patient order errors."))
           )
         )
       )
@@ -1034,10 +1003,10 @@ source_paired_server <- function(input, output, session) {
 
   # Step 2 plots are static (the seagull study numbers, baked into LAB6 above)
   output$paired_step2_pairs <- renderPlot({
-    plot_paired_pairs(LAB6$before, LAB6$after, LAB6$participants)
+    plot_paired_pairs(LAB6$before, LAB6$after, LAB6$subjects)
   }, res = 96)
   output$paired_step2_diffs <- renderPlot({
-    plot_diff_scores(LAB6$D, LAB6$M_D, LAB6$participants)
+    plot_diff_scores(LAB6$D, LAB6$M_D, LAB6$subjects)
   }, res = 96)
 
   # Step 3 . simulated replications of the seagull study
@@ -1060,7 +1029,7 @@ source_paired_server <- function(input, output, session) {
       geom_vline(xintercept = LAB6$M_D, colour = PAL$pop_dark,
                  linetype = "dashed", linewidth = 0.4) +
       annotate("label", x = LAB6$M_D, y = 1.05,
-               label = sprintf("Centre = our M_D = %.2f", LAB6$M_D),
+               label = sprintf("Center = our M_D = %.2f", LAB6$M_D),
                colour = PAL$pop_dark, fill = "white", label.size = NA,
                label.r = unit(0.15, "lines"), alpha = 0.95, size = 4)
     if (length(MDs) > 0) {
@@ -1075,7 +1044,7 @@ source_paired_server <- function(input, output, session) {
     } else {
       g <- g + annotate("label", x = LAB6$M_D, y = 0.5,
                         label = "Click a button above to simulate replications",
-                        colour = "#666", fill = "white", label.size = NA, size = 4.2)
+                        colour = "#666666", fill = "white", label.size = NA, size = 4.2)
     }
     g + scale_x_continuous(limits = xr) +
       scale_y_continuous(NULL, breaks = NULL, limits = c(0, 1.2)) +

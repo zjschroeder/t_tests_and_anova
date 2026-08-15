@@ -127,7 +127,7 @@ source_indep_server <- function(input, output, session) {
     withMathJax(div(class = "container-fluid", style = "max-width: 1240px; padding-top: 16px;",
 
       scenario_card(
-        "Build an independent-samples t-test, from the ground up",
+        "Build an independent-samples t-test",
         lab_label = "Running example: do Daves know more Daves?",
         p(style = "margin-bottom:6px;",
           "The independent-samples t-test is what we reach for when we have ",
@@ -165,10 +165,9 @@ source_indep_server <- function(input, output, session) {
 
       # ------ STEP 1 -------------------------------------------------------
       step_container(
-        1, "The null world: \\(H_0:\\ \\mu_1 = \\mu_2\\)",
+        1, "A world where the groups do not differ: \\(H_0:\\ \\mu_1 = \\mu_2\\)",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "Consider two independent populations with means ",
             math_inline("\\mu_1"), " and ", math_inline("\\mu_2"),
             " and common variance ", math_inline("\\sigma^2"),
@@ -180,7 +179,6 @@ source_indep_server <- function(input, output, session) {
             math_inline("\\mu_1 - \\mu_2 \\neq 0"), "."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "Picture a world where the two groups secretly come from ",
             "populations with the same average. Even in that world, the ",
             "particular samples we happen to draw will produce two means ",
@@ -190,13 +188,12 @@ source_indep_server <- function(input, output, session) {
             "of routine sample-to-sample variation."
           ),
           tldr = tagList(
-            tags$b("Case study (Daves). "),
             "For the Daves study, H₀ says that the population of Daves and ",
             "the population of non-Daves know the same average number of ",
             "people named Dave (whatever quirk of social networks would ",
             "make Dave-density vary by personal name does not exist). ",
             "H₁ says the two population averages differ. The data will ",
-            "tell us which of these worlds is the easier one to live in."
+            "tell us which of these worlds is more plausible."
           )
         ),
         math_block("H_0:\\ \\mu_1 - \\mu_2 = 0 \\qquad H_1:\\ \\mu_1 - \\mu_2 \\neq 0"),
@@ -230,35 +227,31 @@ source_indep_server <- function(input, output, session) {
         2, "Run one study: two samples, two means, one gap",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "We draw ", math_inline("n_1"),
             " observations from population 1 and ", math_inline("n_2"),
             " observations from population 2, independently of one another. ",
             "From those samples we compute ",
-            math_inline("M_1, M_2, s_1"), ", and ", math_inline("s_2"),
+            math_inline("M_1, M_2, \\text{SD}_1"), ", and ", math_inline("\\text{SD}_2"),
             " using the same formulas we have been using all along. The ",
             tags$b("signal"), " of interest is the gap between the two ",
             "sample means, written ", math_inline("M_1 - M_2"), "."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "Survey twelve respondents in each group, count the Daves each ",
             "person knows, and average within each group. We end up with ",
             "two group averages, and we subtract them to get a single ",
             "number summarizing how the two groups compare in our particular ",
-            "sample. That number is what the test ",
-            "ultimately evaluates."
+            "sample. That number is what the test evaluates."
           ),
           tldr = tagList(
-            tags$b("Case study (Daves). "),
             "Doing the arithmetic on the Daves study's data: Daves gives ",
             math_inline("M_1 = 7.00"), " with ",
-            math_inline("s_1 = 2.56"),
+            math_inline("\\text{SD}_1 = 2.56"),
             ", and non-Daves gives ", math_inline("M_2 = 4.00"),
-            " with ", math_inline("s_2 = 2.30"),
+            " with ", math_inline("\\text{SD}_2 = 2.30"),
             ". The observed gap is ",
             math_inline("M_1 - M_2 = 3.00"),
-            " chips, , with Daves knowing more Daves on average."
+            " Daves, with Daves knowing more Daves on average."
           )
         ),
         math_block("\\text{signal} \\;=\\; M_1 - M_2"),
@@ -268,12 +261,12 @@ source_indep_server <- function(input, output, session) {
             fluidRow(
               column(3, stat_card("n_1", LAB5$n1)),
               column(3, stat_card("M_1", sprintf("%.2f", LAB5$M1))),
-              column(3, stat_card("s_1", sprintf("%.2f", LAB5$s1))),
+              column(3, stat_card("SD_1", sprintf("%.2f", LAB5$s1))),
               column(3, stat_card("SS_1", sprintf("%.2f", LAB5$SS1)))),
             fluidRow(
               column(3, stat_card("n_2", LAB5$n2)),
               column(3, stat_card("M_2", sprintf("%.2f", LAB5$M2))),
-              column(3, stat_card("s_2", sprintf("%.2f", LAB5$s2))),
+              column(3, stat_card("SD_2", sprintf("%.2f", LAB5$s2))),
               column(3, stat_card("SS_2", sprintf("%.2f", LAB5$SS2)))),
             fluidRow(
               column(3, stat_card("M_1 − M_2",
@@ -282,10 +275,10 @@ source_indep_server <- function(input, output, session) {
         callout_warm(
           tags$b("Three distributions to keep apart. "),
           "The cluster of blue dots in the plot above is one sample ",
-          "distribution (the Dave counts for Daves bags). The cluster ",
+          "distribution (the Dave counts for the Daves group). The cluster ",
           "of green dots is a second sample distribution (the Dave counts ",
-          "for non-Daves bags). Each has its own spread, ",
-          math_inline("s_1"), " and ", math_inline("s_2"),
+          "for the non-Daves group). Each has its own spread, ",
+          math_inline("\\text{SD}_1"), " and ", math_inline("\\text{SD}_2"),
           " respectively, which together feed into the noise estimate. A ",
           "third distribution shows up in Step 4: the sampling distribution ",
           "of the difference between two sample means. That third ",
@@ -300,7 +293,6 @@ source_indep_server <- function(input, output, session) {
         3, "Run it again: sampling variability of \\(M_1 - M_2\\)",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "Independent replications of the same study draw fresh samples ",
             "from each of the two populations, producing different pairs ",
             "of sample means (", math_inline("M_1, M_2"),
@@ -311,16 +303,13 @@ source_indep_server <- function(input, output, session) {
             "the difference between sample means."
           ),
           example = tagList(
-            tags$b("In human words. "),
-            "Picture 100 separate consumer-protection researchers each ",
+            "Picture 100 separate research groups each ",
             "running the Daves study with twelve fresh respondents in each group. They would ",
             "produce 100 slightly different gaps between the two group ",
-            "averages, with values clustered around the true difference but ",
-            "scattered around it. That cluster has a shape, and the shape ",
-            "is what the rest of this tab is going to work with."
+            "averages, centered on the true difference but scattered around ",
+            "it. The rest of this tab works with the shape of that scatter."
           ),
           tldr = tagList(
-            tags$b("Case study (Daves). "),
             "We can build intuition about this by simulating replications. ",
             "The buttons below assume the groups really do differ by the Daves study's ",
             "observed gap on average, draw fresh samples from each ",
@@ -344,7 +333,7 @@ source_indep_server <- function(input, output, session) {
           "(variation across imagined replications of a study), but the ",
           "random quantity being tracked is now a difference rather than a ",
           "single mean. That changes the formula for the standard error, ",
-          "which is what Step 5 unpacks."
+          "which Step 5 works out."
         ),
         id_prefix = "indep-step"
       ),
@@ -354,7 +343,6 @@ source_indep_server <- function(input, output, session) {
         4, "If we ran it many times: the sampling distribution of \\(M_1 - M_2\\)",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "Under H₀, the random quantity ",
             math_inline("M_1 - M_2"),
             " has mean zero and standard deviation ",
@@ -367,7 +355,6 @@ source_indep_server <- function(input, output, session) {
             "two SDs from the data."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "Picture the world in which the two groups have identical ",
             "average Dave counts. Even in that world, sample-to-sample luck ",
             "produces gaps between the two sample means that bounce around ",
@@ -378,7 +365,6 @@ source_indep_server <- function(input, output, session) {
             "particular gap would be in that world."
           ),
           tldr = tagList(
-            tags$b("Case study (Daves). "),
             "The null sampling distribution for the Daves study is centered at zero ",
             "(because H₀ says ", math_inline("\\mu_1 - \\mu_2 = 0"),
             "). Its spread is determined by the standard error of the ",
@@ -394,8 +380,8 @@ source_indep_server <- function(input, output, session) {
           tags$br(),
           "• ", tags$b("Sample distribution within one group: "),
           "the twelve Dave counts inside Daves (or inside non-Daves). ",
-          "Its spread is ", math_inline("s_1"), " or ",
-          math_inline("s_2"), ", respectively.", tags$br(),
+          "Its spread is ", math_inline("\\text{SD}_1"), " or ",
+          math_inline("\\text{SD}_2"), ", respectively.", tags$br(),
           "• ", tags$b("Sampling distribution of the difference: "),
           "the bell curve in the plot above. The random variable here is ",
           math_inline("M_1 - M_2"), ", a quantity that does not exist as a ",
@@ -411,20 +397,18 @@ source_indep_server <- function(input, output, session) {
         5, "Pooled variance and standard error of \\(M_1 - M_2\\)",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "The pooled-variance procedure assumes homogeneity of variance ",
             "across the two populations, i.e., ",
             math_inline("\\sigma_1 = \\sigma_2"),
             ". Under that assumption, the best single estimate of the ",
             "common population variance is the ", tags$b("pooled variance"),
             ", ",
-            math_inline("s_p^2 = \\dfrac{\\text{SS}_1 + \\text{SS}_2}{(n_1 - 1) + (n_2 - 1)}"),
+            math_inline("\\text{SD}_p^2 = \\dfrac{\\text{SS}_1 + \\text{SS}_2}{(n_1 - 1) + (n_2 - 1)}"),
             ". The standard error of the difference between sample means ",
             "then works out to ",
-            math_inline("s_{M_1 - M_2} = \\sqrt{s_p^2 \\left(1/n_1 + 1/n_2\\right)}"), "."
+            math_inline("\\text{SE} = \\sqrt{\\text{SD}_p^2 \\left(1/n_1 + 1/n_2\\right)}"), "."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "Both groups give us information about how noisy the within-",
             "group measurements are. We pool that information together to ",
             "get one solid estimate of within-group noise, which is the ",
@@ -433,16 +417,15 @@ source_indep_server <- function(input, output, session) {
             "us the standard error of the gap between the two sample means."
           ),
           tldr = tagList(
-            tags$b("Case study (Daves). "),
             "Plugging the Daves study's numbers in: ",
-            math_inline("s_p^2 = (\\text{SS}_1 + \\text{SS}_2) / df"),
+            math_inline("\\text{SD}_p^2 = (\\text{SS}_1 + \\text{SS}_2) / df"),
             " = ", sprintf("(%.2f + %.2f)/22 = %.3f", LAB5$SS1, LAB5$SS2, LAB5$sp2),
             ". From there, the standard error of the gap is ",
-            math_inline("s_{M_1 - M_2} = \\sqrt{s_p^2 (1/12 + 1/12)}"),
-            sprintf(" \\approx %.3f", LAB5$se), "."
+            math_inline(sprintf("\\text{SE} = \\sqrt{\\text{SD}_p^2 (1/12 + 1/12)} \\approx %.3f",
+                                LAB5$se)), "."
           )
         ),
-        math_block("s_p^2 \\;=\\; \\dfrac{\\text{SS}_1 + \\text{SS}_2}{(n_1-1) + (n_2-1)}, \\qquad s_{M_1 - M_2} \\;=\\; \\sqrt{s_p^2 \\left(\\dfrac{1}{n_1} + \\dfrac{1}{n_2}\\right)}"),
+        math_block("\\text{SD}_p^2 \\;=\\; \\dfrac{\\text{SS}_1 + \\text{SS}_2}{(n_1-1) + (n_2-1)}, \\qquad \\text{SE} \\;=\\; \\sqrt{\\text{SD}_p^2 \\left(\\dfrac{1}{n_1} + \\dfrac{1}{n_2}\\right)}"),
         div(class = "p-3",
             style = "background:#fff; border:1px solid #ddd; border-radius:8px;",
             fluidRow(
@@ -450,29 +433,27 @@ source_indep_server <- function(input, output, session) {
                                   sprintf("%.2f", LAB5$SS1 + LAB5$SS2))),
               column(3, stat_card("df_within = (n_1-1)+(n_2-1)",
                                   LAB5$df)),
-              column(3, stat_card("s_p² (pooled variance)",
+              column(3, stat_card("SD_p² (pooled variance)",
                                   sprintf("%.3f", LAB5$sp2))),
-              column(3, stat_card("s_{M_1 - M_2}",
+              column(3, stat_card("SE",
                                   sprintf("%.3f", LAB5$se), key = TRUE)))),
         callout_warm(
           tags$b("A frequent source of confusion: Cohen's d uses a ",
                  "different denominator from t. "),
           "Cohen's d for an independent-samples t-test is computed as ",
-          math_inline("d = (M_1 - M_2)/\\sqrt{s_p^2}"),
+          math_inline("d = (M_1 - M_2)/\\sqrt{\\text{SD}_p^2}"),
           ", and for the Daves study it works out to ",
           sprintf("d = %.2f", LAB5$d),
           ", which counts as a large effect by Cohen's benchmarks ",
           "(d ≥ 0.8). The denominator of t uses ",
-          math_inline("s_{M_1 - M_2}"),
+          math_inline("\\text{SE}"),
           " (the standard error of the difference between means), whereas ",
-          "the denominator of d uses ", math_inline("\\sqrt{s_p^2}"),
+          "the denominator of d uses ", math_inline("\\sqrt{\\text{SD}_p^2}"),
           " (the pooled standard deviation). The two denominators serve ",
           "two different questions. The t-statistic answers whether the ",
           "effect is detectable given how much sampling noise we expect. ",
           "Cohen's d answers how large the effect is in standardized units ",
-          "of within-group variation. Both questions matter, and they have ",
-          "different answers, which is why the two statistics exist side ",
-          "by side."
+          "of within-group variation."
         ),
         id_prefix = "indep-step"
       ),
@@ -482,7 +463,6 @@ source_indep_server <- function(input, output, session) {
         6, "Putting it together: the independent-samples t-statistic",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "Under ", math_inline("H_0:\\ \\mu_1 - \\mu_2 = 0"),
             " and the assumption of homogeneity of variance, the ",
             "standardized gap between the two sample means follows a ",
@@ -492,7 +472,6 @@ source_indep_server <- function(input, output, session) {
             "by its standard error from Step 5."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "Same recipe as every other t-test. The numerator is signal ",
             "(the gap between the two sample means, ",
             math_inline("M_1 - M_2"),
@@ -502,16 +481,15 @@ source_indep_server <- function(input, output, session) {
             "null sampling distribution."
           ),
           tldr = tagList(
-            tags$b("Case study (Daves). "),
             "Plugging the Daves study's numbers into the formula gives ",
-            sprintf("t = (M_1 - M_2) / s_{M_1 - M_2} = %.2f / %.3f \\approx %.2f",
-                    LAB5$diff, LAB5$se, LAB5$t),
+            math_inline(sprintf("t = (M_1 - M_2) / SE = %.2f / %.3f \\approx %.2f",
+                                LAB5$diff, LAB5$se, LAB5$t)),
             ", with df = 22. The observed gap is about 3 standard errors ",
-            "standard errors away from zero, which puts it far out in the ",
+            "away from zero, which puts it far out in the ",
             "tail of the null sampling distribution."
           )
         ),
-        math_block("t \\;=\\; \\dfrac{M_1 - M_2}{\\sqrt{s_p^2\\left(\\frac{1}{n_1} + \\frac{1}{n_2}\\right)}}, \\quad df = n_1 + n_2 - 2"),
+        math_block("t \\;=\\; \\dfrac{M_1 - M_2}{\\sqrt{\\text{SD}_p^2\\left(\\frac{1}{n_1} + \\frac{1}{n_2}\\right)}}, \\quad df = n_1 + n_2 - 2"),
         plotOutput("indep_step6_plot", height = "260px"),
         callout_warm(
           tags$b("The Levene's-test side comment. "),
@@ -524,7 +502,7 @@ source_indep_server <- function(input, output, session) {
           "result is consistent with the homogeneity assumption. If ",
           "Levene's test turns out significant instead, the recommended ",
           "adjustment is to use Welch's t-test, which does not pool the ",
-          "two variances. This is a footnote in the Daves study key and will not ",
+          "two variances. This is a footnote for our purposes and will not ",
           "appear on the midterm, but it is the standard accommodation in ",
           "practice."
         ),
@@ -536,22 +514,20 @@ source_indep_server <- function(input, output, session) {
         7, "Setting alpha (\\(\\alpha\\))",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "Alpha (α) is the pre-specified probability of rejecting the ",
             "null hypothesis in a world where the null is in fact true. ",
             "By convention in PSY 302, α = .05 with a two-tailed alternative."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "Alpha is the amount of false-alarm risk we are willing to ",
             "accept. The conceptual story here is identical to the one in ",
             "Tab 1 and Tab 2. Alpha sets the cutoffs that determine when ",
             "we reject H₀, and the p-value (which appears in Step 9) ",
-            "measures how far past those cutoffs our observed result sits."
+            "measures how extreme the observed result is on the null ",
+            "sampling distribution."
           ),
           tldr = tagList(
-            tags$b("Case study (Daves). "),
-            "the Daves study uses the PSY 302 default of α = .05 with a two-tailed ",
+            "The Daves study uses the PSY 302 default of α = .05 with a two-tailed ",
             "alternative."
           )
         ),
@@ -564,7 +540,6 @@ source_indep_server <- function(input, output, session) {
         8, "Critical values, \\(df = n_1 + n_2 - 2\\)",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "For a two-tailed test at level α, the critical values bounding ",
             "the rejection region are ",
             math_inline("\\pm t_{\\alpha/2,\\ df}"),
@@ -575,7 +550,6 @@ source_indep_server <- function(input, output, session) {
             "means from them."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "The df can be read as the total number of independent ",
             "observations minus the number of group means we had to ",
             "estimate from them. Larger samples produce larger df values, ",
@@ -583,7 +557,6 @@ source_indep_server <- function(input, output, session) {
             "produce smaller critical values."
           ),
           tldr = tagList(
-            tags$b("Case study (Daves). "),
             "For the Daves study, ", math_inline("df = 12 + 12 - 2 = 22"),
             ". At α = .05 two-tailed, the critical values are ",
             math_inline("\\pm t_{.025,\\ 22} = \\pm 2.074"), "."
@@ -599,18 +572,16 @@ source_indep_server <- function(input, output, session) {
         9, "The decision: reject \\(H_0\\) or fail to reject?",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "We reject ", math_inline("H_0"), " when ",
             math_inline("|t| \\geq |\\text{CV}|"),
             ", which is equivalent to the condition ",
             math_inline("p < \\alpha"),
             ". The interpretation of \"fail to reject\" mirrors what was ",
-            "said in Tab 2's Step 9. Failing to reject is a different kind ",
-            "of conclusion from concluding that H₀ is true."
+            "said in Tab 2's Step 9. Failing to reject H₀ is not the same ",
+            "as concluding that H₀ is true."
           ),
           example = tagList(
-            tags$b("In human words. "),
-            "We project our observed t-statistic against the cutoff. If it ",
+            "We compare our observed t-statistic to the cutoff. If it ",
             "lands past the critical value, we reject H₀, because the gap ",
             "between the two sample means is too large to chalk up to ",
             "sampling luck. If it lands inside the critical value, we fail ",
@@ -618,17 +589,16 @@ source_indep_server <- function(input, output, session) {
             "luck plausibly could have produced it on its own."
           ),
           tldr = tagList(
-            tags$b("Case study (Daves). "),
-            sprintf("the Daves study yielded t(22) = %.2f, and |%.2f| is well past the critical value of 2.074. We therefore ",
+            sprintf("The Daves study yielded t(22) = %.2f, and |%.2f| is well past the critical value of 2.074. We therefore ",
                     LAB5$t, LAB5$t),
             tags$b("reject H₀"),
-            " with p < .001. The APA-style writeup the Daves study key reports ",
+            " with p = .006. The APA-style writeup ",
             "reads: ",
             tags$em("\"Using an independent samples t-test, the average number "),
-            tags$em("of Daves they know in a bag of Daves (M = 98.25, "),
-            tags$em("SD = 2.42) was significantly higher than non-Daves "),
-            tags$em("(M = 4.00, SD = 2.30), t(22) = 3.02, p < .001, "),
-            tags$em("95% CIµDiff[2.27, 6.40]. This was a large effect, d = 1.23.\"")
+            tags$em("of Daves known by respondents named Dave (M = 7.00, "),
+            tags$em("SD = 2.56) was significantly higher than that of non-Daves "),
+            tags$em("(M = 4.00, SD = 2.30), t(22) = 3.02, p = .006, "),
+            tags$em("95% CIµDiff[0.94, 5.06]. This was a large effect, d = 1.23.\"")
           )
         ),
         math_block("\\text{Reject } H_0 \\;\\Longleftrightarrow\\; |t| \\geq \\text{CV} \\;\\Longleftrightarrow\\; p < \\alpha"),
@@ -646,7 +616,7 @@ source_indep_server <- function(input, output, session) {
                 "Reject H₀",
                 tags$br(),
                 tags$span(style = "font-weight:400; font-size:14px;",
-                          sprintf("|t| = %.2f ≥ |CV| = 2.074. the Daves study's observed gap of 3.00 more Daves is too large to attribute to sampling luck under the assumption that the two groups have equal average Dave counts.",
+                          sprintf("|t| = %.2f ≥ |CV| = 2.074. The observed gap of 3.00 Daves is too large to attribute to sampling luck under the assumption that the two groups have equal average Dave counts.",
                                   abs(LAB5$t))))),
         plotOutput("indep_step9_plot", height = "320px"),
         callout_warm(
@@ -674,8 +644,8 @@ source_indep_server <- function(input, output, session) {
             "average number of Daves known by respondents named Dave ",
             "(M = 7.00, SD = 2.56) was significantly higher than the ",
             "average number known by respondents with other names ",
-            "(M = 4.00, SD = 2.30), t(22) = 3.02, p = .006. This was a ",
-            "large effect, d = 1.23."),
+            "(M = 4.00, SD = 2.30), t(22) = 3.02, p = .006, ",
+            "95% CIµDiff[0.94, 5.06]. This was a large effect, d = 1.23."),
           p(style = "margin-bottom:0;",
             tags$b("Template: "),
             "Using a [test], the average [DV] of [group 1 (M=, SD=)] was ",
@@ -697,17 +667,17 @@ source_indep_server <- function(input, output, session) {
             "have on this tab. Each click draws a fresh imagined ",
             "replication, letting you watch the sampling distribution of ",
             math_inline("M_1 - M_2"),
-            " fill in. As you run more simulations, the cloud will tighten ",
+            " fill in. As you run more simulations, the cloud fills in ",
             "around the true gap."),
           tags$ul(style = "margin-bottom:0; padding-left:20px; line-height:1.7;",
             tags$li(tags$b("Bigger n in either group. "),
               "Imagine that 100 Daves and 100 non-Daves were surveyed ",
-              "instead of twelve each. The pooled SE in Step 5 would ",
-              "shrink by roughly √(100/12) ≈ 2.9, the t-statistic would ",
+              "instead of 12 each. The pooled SE in Step 5 would ",
+              "shrink by a factor of roughly √(100/12) ≈ 2.9, the t-statistic would ",
               "grow accordingly, and the p-value would drop. Bigger ",
               "studies make small effects easier to detect."),
             tags$li(tags$b("Equal vs unequal group sizes. "),
-              math_inline("s_{M_1 - M_2} = \\sqrt{s_p^2(1/n_1 + 1/n_2)}"),
+              math_inline("\\text{SE} = \\sqrt{\\text{SD}_p^2(1/n_1 + 1/n_2)}"),
               " is minimized when ", math_inline("n_1 = n_2"),
               ". Unequal groups lose statistical power. If the Daves ",
               "study had recruited 22 non-Daves and 2 Daves instead of ",
@@ -715,15 +685,15 @@ source_indep_server <- function(input, output, session) {
               "the same total N."),
             tags$li(tags$b("Bigger pooled SD. "),
               "Picture the data noisier within each group. ",
-              math_inline("s_p^2"), " grows, ",
-              math_inline("s_{M_1 - M_2}"),
+              math_inline("\\text{SD}_p^2"), " grows, ",
+              math_inline("\\text{SE}"),
               " grows with it, and the same observed gap of three Daves ",
               "becomes much harder to distinguish from sampling luck."),
             tags$li(tags$b("Run the Step 3 simulations many times. "),
               "Hit ", tags$em("Run 5 more"),
-              " repeatedly. Watch the cloud of (M_1 − M_2) values tighten ",
-              "as it grows. This is what the standard error in Step 5 is ",
-              "actually measuring: the width of that cloud."))
+              " repeatedly. Watch the cloud of (M_1 − M_2) values take shape ",
+              "as it grows. The standard error in Step 5 measures the ",
+              "width of that cloud."))
       ),
       div(class = "text-center mb-4",
           p(style = "color:#444; font-size:14px;",
@@ -814,16 +784,16 @@ source_indep_server <- function(input, output, session) {
               "Compute the pooled variance and the standard error of the ",
               "difference between means."),
             solution = tagList(
-              p(sprintf("Pooled variance: s_p² = (SS_1 + SS_2) / df = (%.2f + %.2f) / 28 = %.3f.",
+              p(sprintf("Pooled variance: SD_p² = (SS_1 + SS_2) / df = (%.2f + %.2f) / 28 = %.3f.",
                         PROBIOTIC$SS1, PROBIOTIC$SS2, PROBIOTIC$sp2)),
-              p(sprintf("Standard error: s_{M_1 - M_2} = sqrt(s_p² · (1/n_1 + 1/n_2)) = sqrt(%.3f · 2/15) ≈ %.3f days.",
+              p(sprintf("Standard error: SE = sqrt(SD_p² · (1/n_1 + 1/n_2)) = sqrt(%.3f · 2/15) ≈ %.3f days.",
                         PROBIOTIC$sp2, PROBIOTIC$se)))
           ),
           list(
             prompt = tagList(tags$b("Step 6. "),
               "Compute the independent-samples t-statistic."),
             solution = tagList(
-              p(sprintf("t = (M_1 - M_2) / s_{M_1 - M_2} = %.2f / %.3f ≈ %.2f.",
+              p(sprintf("t = (M_1 - M_2) / SE = %.2f / %.3f ≈ %.2f.",
                         PROBIOTIC$diff, PROBIOTIC$se, PROBIOTIC$t),
                 " The observed gap sits about ",
                 sprintf("%.1f standard errors below zero", abs(PROBIOTIC$t)),
@@ -846,7 +816,7 @@ source_indep_server <- function(input, output, session) {
           ),
           list(
             prompt = tagList(tags$b("Step 9. "),
-              "What is your decision? Write up the result in APA-style."),
+              "What is your decision? Write up the result in APA style."),
             solution = tagList(
               p(sprintf("|t| = %.2f is much larger than 2.048, so we ", abs(PROBIOTIC$t)),
                 tags$b("reject H₀"), ". The p-value is less than .001."),
@@ -892,7 +862,7 @@ source_indep_server <- function(input, output, session) {
       geom_vline(xintercept = LAB5$diff, colour = PAL$pop_dark,
                  linetype = "dashed", linewidth = 0.4) +
       annotate("label", x = LAB5$diff, y = 1.05,
-               label = sprintf("the Daves study observed gap = %.2f", LAB5$diff),
+               label = sprintf("Observed gap = %.2f", LAB5$diff),
                colour = PAL$pop_dark, fill = "white", label.size = NA,
                label.r = unit(0.15, "lines"), alpha = 0.95, size = 4)
     if (length(ds) > 0) {
@@ -905,7 +875,7 @@ source_indep_server <- function(input, output, session) {
     } else {
       g <- g + annotate("label", x = LAB5$diff, y = 0.5,
                         label = "Click a button to simulate replications",
-                        colour = "#666", fill = "white", label.size = NA, size = 4.2)
+                        colour = "#666666", fill = "white", label.size = NA, size = 4.2)
     }
     g + scale_x_continuous(limits = xr) +
       scale_y_continuous(NULL, breaks = NULL, limits = c(0, 1.2)) +

@@ -87,10 +87,10 @@ base_theme <- function() {
       panel.grid.minor   = element_blank(),
       panel.grid.major.x = element_blank(),
       panel.grid.major.y = element_line(linewidth = 0.3, colour = "grey90"),
-      axis.title         = element_text(size = 12, colour = "#333"),
-      axis.text          = element_text(colour = "#444"),
-      plot.title         = element_text(size = 14, face = "bold", colour = "#222"),
-      plot.subtitle      = element_text(size = 12, colour = "#555"),
+      axis.title         = element_text(size = 12, colour = "#333333"),
+      axis.text          = element_text(colour = "#444444"),
+      plot.title         = element_text(size = 14, face = "bold", colour = "#222222"),
+      plot.subtitle      = element_text(size = 12, colour = "#555555"),
       plot.margin        = margin(8, 14, 8, 14)
     )
 }
@@ -146,7 +146,7 @@ step_container <- function(step_num, title, ..., id_prefix = "step") {
 # Three-form colour-coded explanation block (Formal / In context / tl;dr) ----
 explanation_triad <- function(formal, example, tldr) {
   card <- function(label, body, bg, fg, acc) {
-    div(class = "col-md-4",
+    div(class = "col-lg-4",
         div(class = "p-3 h-100",
             style = sprintf("background:%s; color:%s; border-radius:8px; border-left:5px solid %s;",
                             bg, fg, acc),
@@ -583,12 +583,12 @@ ui <- page_navbar(
         div(class = "p-4 mb-3",
             style = sprintf("background:%s; color:%s; border-radius:10px; border-top:6px solid %s;",
                             PAL$info_bg, PAL$info_fg, PAL$pop_dark),
-            h2("Build a single-sample t-test, from the ground up",
+            h2("Build a single-sample t-test",
                style = "margin-top:0;"),
             p(style = "margin-bottom:6px;",
-              "This walkthrough builds an entire ",
+              "This walkthrough builds a complete ",
               tags$b("single-sample t-test"),
-              " from the ground up. The single-sample t-test is what we ",
+              ", one step at a time. The single-sample t-test is what we ",
               "reach for when we have one group and a known benchmark value, ",
               "and we want to ask whether the group's average is ",
               "meaningfully different from that benchmark."),
@@ -608,20 +608,19 @@ ui <- page_navbar(
               "Each step in the walkthrough adds one new symbol or one new ",
               "conceptual move, then gives you an opportunity to play with ",
               "it. By the end you will have constructed the test statistic ",
-              math_inline("t = \\dfrac{M - \\mu_0}{s/\\sqrt{n}}"),
+              math_inline("t = \\dfrac{M - \\mu_0}{\\text{SD}/\\sqrt{n}}"),
               ", chosen an alpha level, looked up a critical value, and ",
               "made a reject or fail-to-reject decision. ",
               tags$b("Click the Continue ↓ button at the end of each step to advance."))
         ),
 
         # =======================================================================
-        # STEP 1, The null world (μ, σ)
+        # STEP 1, A world where the null is true (μ, σ)
         # =======================================================================
         step_container(
-          1, "The null world: \\(\\mu\\) and \\(\\sigma\\)",
+          1, "A world where the null is true: \\(\\mu\\) and \\(\\sigma\\)",
           explanation_triad(
             formal = tagList(
-              tags$b("Academic. "),
               "A ", tags$b("population"),
               " is the full set of units (people, leaves, transistors) we ",
               "would ideally measure. Its ", tags$b("mean"),
@@ -633,7 +632,7 @@ ui <- page_navbar(
               "research, and we approximate them from sample statistics."
             ),
             example = tagList(
-              tags$b("In human words. "),
+              
               math_inline("\\mu"),
               " is the answer we would get if we could somehow measure ",
               tags$em("every"),
@@ -646,7 +645,6 @@ ui <- page_navbar(
               "actually have access to."
             ),
             tldr = tagList(
-              tags$b("Case study (peas). "),
               "The population of interest is ",
               tags$em("all babies' pea-fitting ear-canal capacity"),
               ". The long-standing benchmark for this population is ",
@@ -694,11 +692,12 @@ ui <- page_navbar(
           plotlyOutput("popPlot", height = "360px"),
           callout_warm(
             tags$b("Reading the plot:"),
-            " each colored band hovers with two facts, what fraction of the ",
-            "population sits inside that band, and the cumulative ",
-            "\"% below this point\" running up the curve. (Cumulative percentages ",
-            "are useful for percentile reasoning, e.g., \"a value at +1σ is at ",
-            "the 84th percentile.\")"
+            " hover anywhere in a band's column, top to bottom, and the tails ",
+            "count too. The popup shows which σ slice you are in, the actual ",
+            "score range it covers, the share of the population that lands ",
+            "there, and the percentile range a score in that slice occupies. ",
+            "The small gray percentages above the axis are cumulative: e.g., a ",
+            "value at +1σ is at the 84th percentile."
           ),
 
           # Assumptions checklist (adapted from GraphPad's Ultimate Guide to t-tests)
@@ -733,7 +732,7 @@ ui <- page_navbar(
             2, "Run one study: collect a sample, compute \\(M\\)",
             explanation_triad(
               formal = tagList(
-                tags$b("Academic. "),
+ 
                 "A ", tags$b("sample"),
                 " is a finite collection of n units randomly drawn from the ",
                 "population. The ", tags$b("sample mean"),
@@ -741,7 +740,7 @@ ui <- page_navbar(
                 ", is our point estimate of ", math_inline("\\mu"), "."
               ),
               example = tagList(
-                tags$b("In human words. "),
+                
                 "Pick ", math_inline("n"),
                 " people at random, measure each one, and average their ",
                 "scores. That single number is your best guess at ",
@@ -750,7 +749,7 @@ ui <- page_navbar(
                 " people would give a slightly different answer."
               ),
               tldr = tagList(
-                tags$b("Case study (peas). "),
+                
                 "The pea-study scientists assemble ", math_inline("n = 11"),
                 " volunteer babies and record how many peas each one can ",
                 "fit in a single ear. Their measurements are 5, 6, 7, 6, 5, ",
@@ -793,7 +792,7 @@ ui <- page_navbar(
             3, "Run the study again. And again. (Sampling variability)",
             explanation_triad(
               formal = tagList(
-                tags$b("Academic. "),
+ 
                 "Repeating the experiment under identical conditions yields a ",
                 "different ", math_inline("M"), " each time. ",
                 "The set of all such ", math_inline("M"),
@@ -802,7 +801,7 @@ ui <- page_navbar(
                 tags$b("sampling variability"), "."
               ),
               example = tagList(
-                tags$b("In human words. "),
+                
                 "If the same study were run by ten different labs, each lab ",
                 "would draw a different ", math_inline("n"), " people and ",
                 "get a slightly different average. Even in a world with no ",
@@ -810,7 +809,7 @@ ui <- page_navbar(
                 "sampling ", tags$em("jiggles"), " the result."
               ),
               tldr = tagList(
-                tags$b("Case study (peas). "),
+                
                 "Imagine ten separate pea-study replications, each one ",
                 "conducted by a different child-development lab. Each lab ",
                 "would gather their own eleven babies, run the same ",
@@ -847,7 +846,7 @@ ui <- page_navbar(
             4, "If we ran the study many times: the sampling distribution",
             explanation_triad(
               formal = tagList(
-                tags$b("Academic. "),
+ 
                 "The ", tags$b("sampling distribution of "),
                 math_inline("M"),
                 " is the probability distribution of all possible sample means ",
@@ -860,16 +859,16 @@ ui <- page_navbar(
                 "normal curve regardless of the population's original shape."
               ),
               example = tagList(
-                tags$b("In human words. "),
+                
                 "Imagine running your study 500 times, instead of just 10. ",
                 "The histogram of all 500 sample means ",
-                "is a thought-experiment object, \"the distribution of how this ",
+                "is a thought experiment, \"the distribution of how this ",
                 "study could have turned out.\" You never actually collect this ",
                 "in real life, but ", tags$em("you know"), " what shape it has, ",
                 "because of the CLT."
               ),
               tldr = tagList(
-                tags$b("Case study (peas). "),
+                
                 "If we imagine running the pea study with 500 different ",
                 "samples of 11 babies, the 500 ", math_inline("M"),
                 " values pile up into a bell curve centered on the true ",
@@ -959,33 +958,32 @@ ui <- page_navbar(
             5, "How wide is that curve? Standard error",
             explanation_triad(
               formal = tagList(
-                tags$b("Academic. "),
+ 
                 "The ", tags$b("standard error of the mean"),
-                ", written ", math_inline("s_M"),
-                ", is the standard deviation of the sampling distribution of ",
-                math_inline("M"),
+                ", written SE, is the standard deviation of the sampling ",
+                "distribution of ", math_inline("M"),
                 ". In real studies we estimate it from the sample data using ",
-                "the formula ", math_inline("s_M = s/\\sqrt{n}"),
-                ", where s is the sample standard deviation."
+                "the formula ", math_inline("\\text{SE} = \\text{SD}/\\sqrt{n}"),
+                ", where SD is the sample standard deviation."
               ),
               example = tagList(
-                tags$b("In human words. "),
-                "Sample SD (s) describes how much the individual ", tags$em("scores"),
+                
+                "The sample SD describes how much the individual ", tags$em("scores"),
                 " in one sample wiggle around the sample mean. Standard error ",
-                math_inline("(s_M)"), " describes how much the ", tags$em("sample mean itself"),
+                "(SE) describes how much the ", tags$em("sample mean itself"),
                 " wiggles from study to study. As ", math_inline("n"),
-                " gets bigger, ", math_inline("s_M"), " shrinks, bigger ",
+                " gets bigger, SE shrinks; bigger ",
                 "studies give more trustworthy averages."
               ),
               tldr = tagList(
-                tags$b("Case study (peas). "),
+                
                 "For the pea data, the sample SD works out to ",
-                math_inline("s = \\sqrt{6/10} \\approx 0.775"),
+                math_inline("\\text{SD} = \\sqrt{6/10} \\approx 0.775"),
                 ", computed from the deviations of the eleven counts (5, 6, ",
                 "7, 6, 5, 6, 6, 5, 7, 6, 7) around their mean of 6. With ",
                 math_inline("n = 11"),
                 ", the estimated standard error is ",
-                math_inline("s_M = 0.775/\\sqrt{11} \\approx 0.234"),
+                math_inline("\\text{SE} = 0.775/\\sqrt{11} \\approx 0.234"),
                 " peas. The eleven scores in the sample scatter by about ",
                 "0.78 peas (the sample SD). The sample mean across imagined ",
                 "re-runs of the whole study scatters by about 0.23 peas (",
@@ -998,24 +996,23 @@ ui <- page_navbar(
             div(class = "p-3",
                 style = "background:#fff; border:1px solid #eee; border-radius:8px;",
                 h5("In real studies, SE comes from your sample data:"),
-                math_block("\\text{SE} = \\dfrac{s}{\\sqrt{n}}"),
+                math_block("\\text{SE} = \\dfrac{\\text{SD}}{\\sqrt{n}}"),
                 p(tags$b("Why √n?"),
                   " When you average n independent measurements, random ups ",
-                  "and downs partly cancel out. The math is precise: the ",
+                  "and downs partly cancel out. The ",
                   tags$em("variance"), " of an average of n independent ",
                   "measurements is exactly the original variance divided by n,"),
-                math_block("\\text{Var}(\\bar{x}) = \\dfrac{s^2}{n}"),
+                math_block("\\text{Var}(\\bar{x}) = \\dfrac{\\text{SD}^2}{n}"),
                 p("Standard deviation is the square root of variance, which gives ",
-                  math_inline("\\text{SE} = s/\\sqrt{n}"),
+                  math_inline("\\text{SE} = \\text{SD}/\\sqrt{n}"),
                   ". The square-root relationship has a practical consequence: ",
                   tags$b("to cut SE in half, you need 4× the sample size; "),
                   "to cut SE by a factor of 10, you need 100× the sample. This ",
                   "is why studies with detectable but small effects often need ",
-                  "thousands of participants. It is not arbitrary, it is the ",
-                  "exact rate at which random noise averages out."),
+                  "thousands of participants."),
                 p(style = "margin-bottom:0;",
                   tags$b("Concrete numbers."),
-                  " If s = 10 then n = 4 → SE = 5; n = 25 → SE = 2; ",
+                  " If SD = 10 then n = 4 → SE = 5; n = 25 → SE = 2; ",
                   "n = 100 → SE = 1; n = 400 → SE = 0.5."),
                 tags$details(
                   class = "mt-3",
@@ -1030,10 +1027,10 @@ ui <- page_navbar(
                       math_inline("\\sigma"),
                       " in advance, the textbook formula would be ",
                       math_inline("\\text{SE} = \\sigma/\\sqrt{n}"),
-                      ". In real studies we never know σ, so we substitute s, ",
-                      "and the t-distribution (instead of the normal) handles the ",
-                      "extra uncertainty that introduces. From here on we use ",
-                      math_inline("s/\\sqrt{n}"), ".")
+                      ". In real studies we never know σ, so we substitute the ",
+                      "sample SD, and the t-distribution (instead of the normal) ",
+                      "handles the extra uncertainty that introduces. From here ",
+                      "on we use ", math_inline("\\text{SD}/\\sqrt{n}"), ".")
                 )
             ),
 
@@ -1053,7 +1050,7 @@ ui <- page_navbar(
                                     min = 2, max = 100, value = 11, step = 1,
                                     width = "100%"),
                         p(style = "color:#666; font-size:12px; margin-bottom:0;",
-                          "These are the same inputs as Step 1 / Step 2, moving one ",
+                          "These are the same inputs as Steps 1 and 2; moving one ",
                           "moves the other.")
                     )
                 ),
@@ -1108,7 +1105,7 @@ ui <- page_navbar(
             6, "Putting it together: the t-statistic",
             explanation_triad(
               formal = tagList(
-                tags$b("Academic. "),
+ 
                 "Let ", math_inline("\\mu_0"),
                 " denote the value claimed by the null hypothesis ",
                 math_inline("H_0:\\ \\mu = \\mu_0"),
@@ -1118,66 +1115,65 @@ ui <- page_navbar(
                 ", measured in standard errors:"
               ),
               example = tagList(
-                tags$b("In human words. "),
+                
                 "The numerator (", math_inline("M - \\mu_0"),
                 ") is the ", tags$b("signal"),
-                ", how far your sample average drifted from the benchmark. ",
-                "The denominator (", math_inline("s_M = s/\\sqrt{n}"),
+                ": how far your sample average drifted from the benchmark. ",
+                "The denominator (", math_inline("\\text{SE} = \\text{SD}/\\sqrt{n}"),
                 ") is the ", tags$b("noise"),
-                ", how much you'd ", tags$em("expect"),
+                ": how much you'd ", tags$em("expect"),
                 " the sample average to drift by chance alone. ",
                 tags$em("t = signal ÷ noise."),
                 " A big t means the drift is much larger than chance would produce."
               ),
               tldr = tagList(
-                tags$b("Case study (peas). "),
+                
                 "For the pea study, the signal is ",
                 math_inline("M - \\mu_0 = 6 - 4 = 2"),
                 " peas. The noise is ",
-                math_inline("s_M \\approx 0.234"),
+                math_inline("\\text{SE} \\approx 0.234"),
                 " peas. The resulting t-statistic is ",
                 math_inline("t = 2 / 0.234 \\approx 8.55"),
                 " with ", math_inline("df = n - 1 = 10"),
                 ". A signal eight-and-a-half standard errors out from the ",
-                "null is an enormous result. We are about to evaluate ",
-                "whether it is large enough to reject the four-pea benchmark, ",
-                "and the answer is going to be yes by a comfortable margin."
+                "null is far larger than sampling luck produces. Steps 7 ",
+                "through 9 turn that impression into a formal decision."
               )
             ),
-            math_block("t \\;=\\; \\dfrac{\\bar{x} - \\mu_0}{s/\\sqrt{n}}"),
+            math_block("t \\;=\\; \\dfrac{\\bar{x} - \\mu_0}{\\text{SD}/\\sqrt{n}}"),
 
             # Three complementary readings
             div(class = "row g-3 my-2",
-                div(class = "col-md-4",
+                div(class = "col-lg-4",
                     div(class = "p-3 h-100",
                         style = sprintf("background:%s; color:%s; border-radius:8px;",
                                         PAL$info_bg, PAL$info_fg),
-                        tags$b("Reading 1, Signal-to-noise ratio (primary)."),
+                        tags$b("Reading 1. Signal-to-noise ratio (primary)."),
                         p(style = "margin-bottom:0;",
                           tags$b("Signal"), " = x̄ − μ₀ (how far the sample is from the null). ",
-                          tags$b("Noise"), " = s/√n (typical wiggle of x̄ across studies, ",
+                          tags$b("Noise"), " = SD/√n (typical wiggle of x̄ across studies, ",
                           "i.e., the spread of the sampling distribution). ",
                           "A large |t| means the signal is large relative to the noise."))
                 ),
-                div(class = "col-md-4",
+                div(class = "col-lg-4",
                     div(class = "p-3 h-100",
                         style = sprintf("background:%s; color:%s; border-radius:8px;",
                                         PAL$ok_bg, PAL$ok_fg),
-                        tags$b("Reading 2, A position on the sampling distribution."),
+                        tags$b("Reading 2. A position on the sampling distribution."),
                         p(style = "margin-bottom:0;",
                           "Because the denominator equals the SD of the null ",
                           "sampling distribution of x̄, t expresses where your ",
                           "sample lands on that distribution. t = 0 is the center; ",
                           "|t| ≫ 0 is far out in the tails."))
                 ),
-                div(class = "col-md-4",
+                div(class = "col-lg-4",
                     div(class = "p-3 h-100",
                         style = sprintf("background:%s; color:%s; border-radius:8px;",
                                         PAL$warn_bg, PAL$warn_fg),
                         tags$b("Reading 3. Z-score for sample means."),
                         p(style = "margin-bottom:0;",
                           "A z-score uses σ. The t-statistic uses ",
-                          math_inline("s/\\sqrt{n}"),
+                          math_inline("\\text{SD}/\\sqrt{n}"),
                           " because we are standardizing a sample mean on the ",
                           tags$em("sampling"),
                           " distribution. The single-observation version, ",
@@ -1208,13 +1204,13 @@ ui <- page_navbar(
             plotOutput("step6_plot", height = "260px"),
             callout_warm(
               tags$b("Reading t on the sampling distribution:"),
-              " t near 0 sits at the center of the null sampling distribution, ",
+              " t near 0 sits at the center of the null sampling distribution; ",
               "your signal is small relative to your noise. As |t| grows, ",
               "your sample slides into the tails. ",
               tags$em("How far"),
               " out it has to sit before we call it \"too extreme\" is what ",
               "the critical value will decide, and that requires first ",
-              "choosing an ", tags$b("alpha level"), ", the next step."
+              "choosing an ", tags$b("alpha level"), " (the next step)."
             ),
             continue_button("continue6")
           )
@@ -1246,8 +1242,7 @@ ui <- page_navbar(
                 "would be a rare result if H₀ were true, rare enough that ",
                 "you'd rather reject H₀ than believe such a fluke. Stricter ",
                 "fields (α = 0.01) shrink the tails. Pilot studies (α = 0.10) ",
-                "widen them. The right value depends on what each kind of ",
-                "mistake costs in context."
+                "widen them."
               ),
               tldr = tagList(
                 "α is the slice of the ", tags$b("sampling distribution"),
@@ -1278,7 +1273,7 @@ ui <- page_navbar(
                 column(width = 6,
                   div(class = "p-3",
                       style = "background:#fff; border:1px solid #ddd; border-radius:8px;",
-                      h5("Test type, one-tailed or two-tailed?",
+                      h5("Test type: one-tailed or two-tailed?",
                          style = "margin-top:0;"),
                       radioButtons(
                         "tail_choice", NULL,
@@ -1334,6 +1329,29 @@ ui <- page_navbar(
               "the opposite. The right balance depends on what each kind of ",
               "mistake costs in context."
             ),
+
+            # ---- Type I error simulator ------------------------------------
+            div(class = "p-3 mt-3",
+                style = "background:#fff; border:1px solid #ddd; border-radius:8px;",
+                h5("See α happen: draw studies from a world where the null is true",
+                   style = "margin-top:0;"),
+                p(style = "color:#666; font-size:13px;",
+                  "Every study below is sampled from a population where H₀ ",
+                  "is exactly true (μ = μ₀), so any rejection is a false ",
+                  "alarm. Click the button a few times and count the orange ",
+                  "dots: over many draws, the false-alarm rate settles ",
+                  "toward your α. Switch α to 0.10 or 0.01 and watch the ",
+                  "cutoff lines and the false-alarm rate move with it."),
+                div(style = "display:flex; gap:8px; flex-wrap:wrap;",
+                    actionButton("alpha_sim_20",
+                                 "Draw 20 studies from a true-null world",
+                                 class = "btn-primary"),
+                    actionButton("alpha_sim_reset", "Reset",
+                                 class = "btn-outline-secondary")),
+                plotOutput("alpha_sim_plot", height = "260px"),
+                uiOutput("alpha_sim_counter")
+            ),
+
             continue_button("continue7")
           )
         ),
@@ -1359,8 +1377,8 @@ ui <- page_navbar(
                 "At α = 0.05, two-tailed: with n = 10 (df = 9) the CV is ±2.26. ",
                 "That means a signal-to-noise ratio of ±2.26 marks the edge of ",
                 "the 5% tail region on the df = 9 sampling distribution. ",
-                "With n = 30 (df = 29) the cutoff tightens to ±2.05, the ",
-                "sampling distribution is narrower, so a smaller signal-to-noise ",
+                "With n = 30 (df = 29) the cutoff tightens to ±2.05 because ",
+                "the sampling distribution is narrower, so a smaller signal-to-noise ",
                 "is already \"extreme.\" With df = 1000 the CV is ≈ ±1.96."
               ),
               tldr = tagList(
@@ -1401,7 +1419,7 @@ ui <- page_navbar(
               "ratio gets pushed farther out (df = 1 → CV ≈ ±12.7). At higher ",
               "df the sampling distribution tightens and CV shrinks toward ",
               "±1.96. Either way, ", tags$em("CV is just a point on the sampling distribution"),
-              ", its location depends on α and df, nothing else."
+              "; its location depends only on α and df."
             ),
 
             div(class = "p-3 mt-3",
@@ -1421,7 +1439,7 @@ ui <- page_navbar(
                   "two-tailed 0.05 CV is ±2.26 (a 15% widening). With df = 29 ",
                   "it is ±2.05. As df → ∞, t merges back into z and the CV ",
                   "approaches ±1.96 from above. ",
-                  tags$b("The t-distribution is just z, plus an honesty correction for small samples."))
+                  tags$b("The t-distribution is z with wider tails at small n."))
             ),
 
             continue_button("continue8")
@@ -1437,7 +1455,7 @@ ui <- page_navbar(
             9, "The decision: reject \\(H_0\\), or fail to reject?",
             explanation_triad(
               formal = tagList(
-                tags$b("Academic. "),
+ 
                 "The decision rule projects your t-statistic, your ",
                 tags$b("signal-to-noise ratio"), ", onto the null sampling ",
                 "distribution and compares it with the critical value. ",
@@ -1449,7 +1467,7 @@ ui <- page_navbar(
                 "H₀; it means your signal-to-noise did not clear the cutoff."
               ),
               example = tagList(
-                tags$b("In human words. "),
+                
                 "Compare your |t| with the critical value (the cutoff). If ",
                 "your sample's signal-to-noise is bigger than the cutoff, your ",
                 "result lands in the α-sized tail of the sampling ",
@@ -1459,17 +1477,17 @@ ui <- page_navbar(
                 "produces\" zone, and you fail to reject."
               ),
               tldr = tagList(
-                tags$b("Case study (peas). "),
+                
                 "For the pea study, signal = ",
                 math_inline("M - \\mu_0 = 6 - 4 = 2"), " peas. Noise = ",
-                math_inline("s_M \\approx 0.234"),
+                math_inline("\\text{SE} \\approx 0.234"),
                 ". The t-statistic works out to ",
                 math_inline("t(10) \\approx 8.55"),
                 ". The two-tailed critical value at α = .05 with df = 10 is ",
                 "±2.228. Because 8.55 is far past 2.228, we ",
                 tags$b("reject H₀"),
-                ". The Onion's claim that babies max out at four peas does ",
-                "not survive contact with the data. A reasonable APA-style ",
+                ". The data are not consistent with The Onion's claim that ",
+                "babies max out at four peas. A reasonable APA-style ",
                 "writeup would read: ",
                 tags$em("\"Using a single-sample t-test, the pea-fitting "),
                 tags$em("capacity of the eleven babies sampled (M = 6.00, "),
@@ -1483,7 +1501,7 @@ ui <- page_navbar(
             # ALL inputs collected here, synced with prior step inputs
             div(class = "p-3 mt-3",
                 style = "background:#fff; border:1px solid #ddd; border-radius:8px;",
-                h5("Adjust any input, every prior step updates with you",
+                h5("Adjust any input; every prior step updates",
                    style = "margin-top:0;"),
                 p(style = "color:#666; font-size:13px;",
                   "These controls are bidirectionally synced with the inputs in ",
@@ -1519,6 +1537,23 @@ ui <- page_navbar(
 
             uiOutput("step9_summary"),
             plotOutput("step9_plot", height = "360px"),
+
+            # ---- p-value explorer: drag t, watch the two rules agree ------
+            div(class = "p-3 mt-3",
+                style = "background:#fff; border:1px solid #ddd; border-radius:8px;",
+                h5("Drag a hypothetical t: the p-value rule and the cutoff rule agree",
+                   style = "margin-top:0;"),
+                p(style = "color:#666; font-size:13px;",
+                  "The math box above states two versions of the decision ",
+                  "rule. They are the same rule. Drag the slider and watch: ",
+                  "the purple p-value area slips below α at exactly the ",
+                  "moment |t| crosses the critical value."),
+                sliderInput("pexp_t", "Hypothetical observed t",
+                            min = -6, max = 6, value = 1.5, step = 0.05,
+                            width = "100%"),
+                plotOutput("pexp_plot", height = "240px"),
+                uiOutput("pexp_readout")
+            ),
             plot_legend(list(
               list(label = "Rejection region (area = α)", type = "fill",
                    color = PAL$reject),
@@ -1531,14 +1566,14 @@ ui <- page_navbar(
             )),
             callout_warm(
               tags$b("Plain-language summary:"),
-              " every t-test reduces to the same projection, line your ",
+              " every t-test reduces to the same projection: line your ",
               "observed ", tags$b("signal-to-noise ratio"),
               " up against the ", tags$b("critical signal-to-noise"),
               " on the null sampling distribution. ",
               tags$em("If the null were true, data this extreme would happen less than α of the time"),
               ", so when your t crosses the cutoff we discard H₀ as a working ",
               "assumption. \"Fail to reject\" means your signal-to-noise did not ",
-              "clear the line, the data are consistent with H₀, but that is ",
+              "clear the line. The data are consistent with H₀, but that is ",
               "not the same as proving H₀ is correct."
             )
           )
@@ -1568,7 +1603,7 @@ ui <- page_navbar(
                   "sample mean ", math_inline("M"), " in Step 2 stops ",
                   "bouncing around as much, and the sampling distribution ",
                   "in Step 4 narrows. The standard error ",
-                  math_inline("s_M = s/\\sqrt{n}"),
+                  math_inline("\\text{SE} = \\text{SD}/\\sqrt{n}"),
                   " in Step 5 shrinks by a factor of √n. Notice that ",
                   "quadrupling n only halves the standard error."),
                 tags$li(tags$b("Population SD (Step 5). "),
@@ -1627,8 +1662,8 @@ ui <- page_navbar(
           scenario_html = tagList(
             p("The figure 98.6°F was reported in 1868 by the German ",
               "physician Carl Wunderlich, who took roughly a million ",
-              "axillary measurements with a mercury thermometer that ",
-              "today's metrology would not consider especially accurate. ",
+              "axillary measurements with a mercury thermometer far less ",
+              "accurate than modern instruments. ",
               "Cohen and Marill (2018) revisited the question using ",
               "modern data from the Feverprints project and reported that ",
               "the population mean for healthy adults appears to be lower ",
@@ -1639,7 +1674,7 @@ ui <- page_navbar(
               "Imagine you have a fresh dataset of ", math_inline("n = 30"),
               " healthy adult oral temperatures, with sample mean ",
               math_inline("M = 97.7"), "°F and sample standard deviation ",
-              math_inline("s = 0.72"), "°F. The benchmark you want to ",
+              math_inline("\\text{SD} = 0.72"), "°F. The benchmark you want to ",
               "compare against is ", math_inline("\\mu_0 = 98.6"),
               "°F. Use α = .05, two-tailed.")
           ),
@@ -1647,7 +1682,7 @@ ui <- page_navbar(
             tags$ul(style = "margin-bottom:0;",
               tags$li(tags$b("Sample size: "), math_inline("n = 30")),
               tags$li(tags$b("Sample mean: "), math_inline("M = 97.7"), "°F"),
-              tags$li(tags$b("Sample SD: "), math_inline("s = 0.72"), "°F"),
+              tags$li(tags$b("Sample SD: "), math_inline("\\text{SD} = 0.72"), "°F"),
               tags$li(tags$b("Benchmark: "),
                       math_inline("\\mu_0 = 98.6"), "°F"),
               tags$li(tags$b("Alpha: "), "α = .05, two-tailed"))
@@ -1679,7 +1714,7 @@ ui <- page_navbar(
                 p("The sample mean is ", math_inline("M = 97.7"),
                   "°F (the average of the 30 individual oral temperatures). ",
                   "The sample standard deviation is ",
-                  math_inline("s = 0.72"),
+                  math_inline("\\text{SD} = 0.72"),
                   "°F (the spread of those 30 temperatures around the ",
                   "sample mean). The sample size is ", math_inline("n = 30"),
                   ". These three numbers are everything we need from the ",
@@ -1720,12 +1755,12 @@ ui <- page_navbar(
             list(
               prompt = tagList(
                 tags$b("Step 5. "), "Compute the standard error of ",
-                math_inline("M"), " from ",
-                math_inline("s"), " and ", math_inline("n"), "."),
+                math_inline("M"), " from the SD and ",
+                math_inline("n"), "."),
               solution = tagList(
-                p(math_inline("s_M = s/\\sqrt{n} = 0.72/\\sqrt{30}"),
+                p(math_inline("\\text{SE} = \\text{SD}/\\sqrt{n} = 0.72/\\sqrt{30}"),
                   ". The square root of 30 is approximately 5.477, so ",
-                  math_inline("s_M \\approx 0.72 / 5.477 \\approx 0.131"),
+                  math_inline("\\text{SE} \\approx 0.72 / 5.477 \\approx 0.131"),
                   "°F. Across imagined re-runs of this study, the sample ",
                   "mean would typically wiggle by about 0.13°F."))
             ),
@@ -1734,7 +1769,7 @@ ui <- page_navbar(
                 tags$b("Step 6. "), "Compute the t-statistic and write a ",
                 "one-sentence interpretation of what it represents."),
               solution = tagList(
-                p(math_inline("t = (M - \\mu_0)/s_M = (97.7 - 98.6)/0.131"),
+                p(math_inline("t = (M - \\mu_0)/\\text{SE} = (97.7 - 98.6)/0.131"),
                   ". The numerator is the signal of −0.9°F. Dividing by ",
                   "the noise estimate of 0.131°F gives ",
                   math_inline("t \\approx -6.87"),
@@ -1855,7 +1890,7 @@ server <- function(input, output, session) {
 
   # --- Sticky sidebar TOC (Radiant-style step navigator) -------------------
   step_titles <- c(
-    "The null world",
+    "If the null were true",
     "Run one study",
     "Run it again",
     "Sampling distribution",
@@ -1917,6 +1952,19 @@ server <- function(input, output, session) {
   observeEvent(input$continue6, { walk$step <- max(walk$step, 7) })
   observeEvent(input$continue7, { walk$step <- max(walk$step, 8) })
   observeEvent(input$continue8, { walk$step <- max(walk$step, 9) })
+
+  # --- Resume from the URL ----------------------------------------------------
+  # The unlocked step is mirrored into the query string (?step=N), so a
+  # bookmarked or refreshed page reopens at the same point in the walkthrough.
+  observeEvent(session$clientData$url_search, {
+    q <- parseQueryString(session$clientData$url_search)
+    s <- suppressWarnings(as.integer(q$step))
+    if (length(s) == 1 && !is.na(s))
+      walk$step <- max(walk$step, min(max(s, 1), 9))
+  }, once = TRUE)
+  observeEvent(walk$step, {
+    updateQueryString(paste0("?step=", walk$step), mode = "replace", session)
+  }, ignoreInit = TRUE)
 
   # --- Bidirectional sync helpers -------------------------------------------
   # Sliders: pop_sigma <-> step5_sigma <-> step9_sigma
@@ -2028,37 +2076,79 @@ server <- function(input, output, session) {
     mu    <- input$pop_mu    %||% 4
     sigma <- input$pop_sigma %||% 0.78
 
+    # Round to 2 decimals for hover text; enough precision for the case-study
+    # values (e.g., σ = 0.78 → μ+1σ = 4.78) without drowning the label.
+    fmt2 <- function(v) formatC(round(v, 2), format = "g", drop0trailing = TRUE)
+
     make_band <- function(a, b, color, label) {
       xs <- seq(a, b, length.out = 80)
       ys <- dnorm(xs, mu, sigma)
-      list(x = c(a, xs, b), y = c(0, ys, 0), color = color, label = label)
+      list(a = a, b = b,
+           x = c(a, xs, b), y = c(0, ys, 0), color = color, label = label)
+    }
+
+    # Four-line hover label per band: which σ slice this is, the actual score
+    # range under the current μ and σ, how much of the population lands in the
+    # slice, and the percentile range a score in the slice occupies.
+    band_label <- function(slice, lo, hi, share, pctile) {
+      vals <- if (is.na(lo)) {
+        paste0("Scores below ", fmt2(hi))
+      } else if (is.na(hi)) {
+        paste0("Scores above ", fmt2(lo))
+      } else {
+        paste0("Scores from ", fmt2(lo), " to ", fmt2(hi))
+      }
+      paste0(slice, "<br>", vals, "<br>", share, "<br>", pctile)
     }
 
     bands <- list(
       make_band(mu - 4 * sigma, mu - 3 * sigma, PAL$band_far,
-                "Beyond −3σ<br>≈0.15% of population is here<br>≈0.15% of population is at or below −3σ"),
+                band_label("More than 3 SDs below the mean (beyond μ − 3σ)",
+                           NA, mu - 3 * sigma,
+                           "≈0.15% of the population is out here",
+                           "A score here is below the 0.15th percentile, rarer than 1 in 500")),
       make_band(mu - 3 * sigma, mu - 2 * sigma, PAL$band3,
-                "Between −3σ and −2σ<br>≈2.35% of population is here<br>≈2.5% of population is at or below −2σ"),
+                band_label("2 to 3 SDs below the mean (μ − 3σ to μ − 2σ)",
+                           mu - 3 * sigma, mu - 2 * sigma,
+                           "≈2.35% of the population lands in this band",
+                           "A score here sits between the 0.15th and 2.5th percentiles")),
       make_band(mu - 2 * sigma, mu - 1 * sigma, PAL$band2,
-                "Between −2σ and −1σ<br>≈13.5% of population is here<br>≈16% of population is at or below −1σ"),
+                band_label("1 to 2 SDs below the mean (μ − 2σ to μ − 1σ)",
+                           mu - 2 * sigma, mu - 1 * sigma,
+                           "≈13.5% of the population lands in this band",
+                           "A score here sits between the 2.5th and 16th percentiles")),
       make_band(mu - 1 * sigma, mu + 1 * sigma, PAL$band1,
-                "Within ±1σ of μ<br>≈68% of population is here<br>≈84% of population is at or below +1σ"),
+                band_label("Within 1 SD of the mean (μ − 1σ to μ + 1σ)",
+                           mu - 1 * sigma, mu + 1 * sigma,
+                           "≈68% of the population lands in this band, the typical range",
+                           "A score here sits between the 16th and 84th percentiles")),
       make_band(mu + 1 * sigma, mu + 2 * sigma, PAL$band2,
-                "Between +1σ and +2σ<br>≈13.5% of population is here<br>≈97.5% of population is at or below +2σ"),
+                band_label("1 to 2 SDs above the mean (μ + 1σ to μ + 2σ)",
+                           mu + 1 * sigma, mu + 2 * sigma,
+                           "≈13.5% of the population lands in this band",
+                           "A score here sits between the 84th and 97.5th percentiles")),
       make_band(mu + 2 * sigma, mu + 3 * sigma, PAL$band3,
-                "Between +2σ and +3σ<br>≈2.35% of population is here<br>≈99.85% of population is at or below +3σ"),
+                band_label("2 to 3 SDs above the mean (μ + 2σ to μ + 3σ)",
+                           mu + 2 * sigma, mu + 3 * sigma,
+                           "≈2.35% of the population lands in this band",
+                           "A score here sits between the 97.5th and 99.85th percentiles")),
       make_band(mu + 3 * sigma, mu + 4 * sigma, PAL$band_far,
-                "Beyond +3σ<br>≈0.15% of population is here<br>≈99.85% of population is at or below +3σ")
+                band_label("More than 3 SDs above the mean (beyond μ + 3σ)",
+                           mu + 3 * sigma, NA,
+                           "≈0.15% of the population is out here",
+                           "A score here is above the 99.85th percentile, rarer than 1 in 500"))
     )
 
+    # Colored density bands are visual only (hoverinfo = "skip"); hover is
+    # handled by full-height invisible strips added after the curve, so the
+    # thin tails are as easy to mouse over as the fat middle.
     p <- plot_ly()
     for (b in bands) {
       p <- p %>% add_polygons(
         x = b$x, y = b$y,
         fillcolor = b$color, opacity = 0.78,
         line = list(width = 0),
-        hoveron = "fills",
-        hoverinfo = "text", text = b$label,
+        hoverinfo = "skip",
         showlegend = FALSE
       )
     }
@@ -2066,16 +2156,31 @@ server <- function(input, output, session) {
     xc <- seq(mu - 4 * sigma, mu + 4 * sigma, length.out = 400)
     p <- p %>% add_lines(
       x = xc, y = dnorm(xc, mu, sigma),
-      line = list(color = "#222", width = 2),
+      line = list(color = "#222222", width = 2),
       hoverinfo = "skip", showlegend = FALSE
     )
 
     y_max <- dnorm(mu, mu, sigma)
     p <- p %>% add_segments(
       x = mu, xend = mu, y = 0, yend = y_max,
-      line = list(color = "#222", width = 1, dash = "dash"),
+      line = list(color = "#222222", width = 1, dash = "dash"),
       hoverinfo = "skip", showlegend = FALSE
     )
+
+    # Invisible full-height hover strips, one per band. Hovering anywhere in a
+    # band's column (not just inside the density shape, which is only a few
+    # pixels tall in the tails) brings up that band's label.
+    for (b in bands) {
+      p <- p %>% add_polygons(
+        x = c(b$a, b$b, b$b, b$a),
+        y = c(0, 0, y_max * 1.15, y_max * 1.15),
+        fillcolor = "rgba(255,255,255,0.01)",
+        line = list(width = 0),
+        hoveron = "fills",
+        hoverinfo = "text", text = b$label,
+        showlegend = FALSE
+      )
+    }
 
     fmt <- function(v) formatC(round(v, 1), format = "g", drop0trailing = TRUE)
     tickvals <- c(mu - 3 * sigma, mu - 2 * sigma, mu - sigma,
@@ -2096,7 +2201,7 @@ server <- function(input, output, session) {
       list(x = tickvals[i], y = 1.05, xref = "x", yref = "paper",
            text = paste0(cum_labels[i], "<br>below"),
            showarrow = FALSE,
-           font = list(size = 10, color = "#555"),
+           font = list(size = 10, color = "#555555"),
            align = "center")
     })
 
@@ -2145,7 +2250,7 @@ server <- function(input, output, session) {
     if (length(s) == 0) {
       g <- g + annotate("label", x = mu, y = y_max * 0.5,
                         label = "Click \"Run the study\" to draw a sample",
-                        colour = "#666", fill = "white", label.size = NA,
+                        colour = "#666666", fill = "white", label.size = NA,
                         size = 4.2)
     } else {
       m <- mean(s)
@@ -2176,7 +2281,7 @@ server <- function(input, output, session) {
         style = "background:#fff; border:1px solid #ddd; border-radius:8px;",
         fluidRow(
           column(4, stat_card("Sample mean (x̄)", sprintf("%.2f", mean(s)))),
-          column(4, stat_card("Sample SD (s)",   sprintf("%.2f", sd(s)))),
+          column(4, stat_card("Sample SD",       sprintf("%.2f", sd(s)))),
           column(4, stat_card("Sample size (n)", length(s)))
         )
     )
@@ -2264,7 +2369,7 @@ server <- function(input, output, session) {
       base_theme() +
       theme(strip.placement = "outside",
             strip.text.y.left = element_text(angle = 0, face = "bold",
-                                              size = 11, colour = "#333"),
+                                              size = 11, colour = "#333333"),
             strip.background = element_blank(),
             axis.text.y = element_blank(),
             axis.ticks.y = element_blank())
@@ -2362,7 +2467,7 @@ server <- function(input, output, session) {
     r <- step5_se()
     s_for_eq <- if (!is.na(r$s)) r$s else r$sigma  # fall back to σ before sample
     se       <- s_for_eq / sqrt(r$n)
-    label_s  <- if (!is.na(r$s)) "s" else "\\sigma"
+    label_s  <- if (!is.na(r$s)) "\\text{SD}" else "\\sigma"
     fmt <- function(v) formatC(round(v, 2), format = "f", digits = 2)
     fmt3 <- function(v) formatC(round(v, 3), format = "f", digits = 3)
     eq <- paste0(
@@ -2392,7 +2497,7 @@ server <- function(input, output, session) {
         ggplot() +
           annotate("label", x = 0, y = 0,
                    label = "Move a slider to start the history",
-                   colour = "#666", fill = "white", label.size = NA, size = 4.5) +
+                   colour = "#666666", fill = "white", label.size = NA, size = 4.5) +
           theme_void()
       )
     }
@@ -2419,7 +2524,7 @@ server <- function(input, output, session) {
       geom_line(data = subset(rows,  is_current),
                 colour = "black", linewidth = 1.3) +
       scale_alpha_identity() +
-      geom_vline(xintercept = mu, linetype = "dashed", colour = "#888",
+      geom_vline(xintercept = mu, linetype = "dashed", colour = "#888888",
                  linewidth = 0.4) +
       annotate("label", x = mu, y = max(rows$y) * 1.05, label = current_label, fill = "white", colour = "black", label.size = NA,
                  label.r = unit(0.15, "lines"), alpha = 0.95, size = 4) +
@@ -2432,10 +2537,10 @@ server <- function(input, output, session) {
     r <- step5_se()
     primary_card <- if (!is.na(r$s))
       fluidRow(
-        column(3, stat_card("s (sample SD)", sprintf("%.2f", r$s))),
+        column(3, stat_card("Sample SD", sprintf("%.2f", r$s))),
         column(3, stat_card("n",             r$n)),
         column(3, stat_card("√n",            sprintf("%.3f", sqrt(r$n)))),
-        column(3, stat_card("SE = s/√n",     sprintf("%.3f", r$se_samp), key = TRUE))
+        column(3, stat_card("SE = SD/√n",     sprintf("%.3f", r$se_samp), key = TRUE))
       )
     else
       div(style = "color:#888;",
@@ -2486,9 +2591,9 @@ server <- function(input, output, session) {
         fluidRow(
           column(2, stat_card("x̄",         sprintf("%.2f", r$xbar))),
           column(2, stat_card("μ₀",        sprintf("%.2f", r$mu0))),
-          column(2, stat_card("s",         sprintf("%.2f", r$s))),
+          column(2, stat_card("SD",        sprintf("%.2f", r$s))),
           column(2, stat_card("n",         r$n)),
-          column(2, stat_card("SE = s/√n", sprintf("%.3f", r$se))),
+          column(2, stat_card("SE = SD/√n", sprintf("%.3f", r$se))),
           column(2, stat_card("t = (x̄−μ₀)/SE", sprintf("%.3f", r$t), key = TRUE))
         )
     )
@@ -2533,7 +2638,7 @@ server <- function(input, output, session) {
     }
 
     g + scale_x_continuous(limits = xr, breaks = t_xbreaks(xr)) +
-      labs(x = "t-statistic = signal (x̄ − μ₀) ÷ noise (s/√n), located on the null sampling distribution",
+      labs(x = "t-statistic = signal (x̄ − μ₀) ÷ noise (SD/√n), located on the null sampling distribution",
            y = "Density",
            subtitle = sprintf(
              "Sampling distribution of t under H₀: df = n − 1 = %d%s",
@@ -2579,7 +2684,7 @@ server <- function(input, output, session) {
     g + geom_line(data = cd, aes(x, y), colour = "black", linewidth = 0.7) +
       geom_hline(yintercept = 0, colour = "grey60", linewidth = 0.3) +
       annotate("label", x = 0, y = max(cd$y) * 0.5,
-                     label = sprintf("white area = 1 − α = %.2f\n(plausible signal-to-noise\nunder H₀)", 1 - alpha), colour = "#444", fill = "white", label.size = NA,
+                     label = sprintf("white area = 1 − α = %.2f\n(plausible signal-to-noise\nunder H₀)", 1 - alpha), colour = "#444444", fill = "white", label.size = NA,
                  label.r = unit(0.15, "lines"), alpha = 0.95, size = 3.6, lineheight = 0.95) +
       scale_x_continuous(limits = xr, breaks = t_xbreaks(xr)) +
       labs(x = "t-statistic (signal-to-noise ratio under H₀)", y = "Density",
@@ -2588,6 +2693,89 @@ server <- function(input, output, session) {
              df_v, alpha)) +
       base_theme()
   }, res = 96)
+
+  # ============================================================================
+  # STEP 7, Type I error simulator (every draw comes from a true-null world)
+  # ============================================================================
+  alpha_sim <- reactiveValues(t = numeric(0))
+
+  observeEvent(input$alpha_sim_20, {
+    n     <- input$pop_n %||% 11
+    sigma <- input$pop_sigma %||% 0.78
+    mu0   <- input$mu0 %||% 4
+    ts <- vapply(seq_len(20), function(i) {
+      smp <- rnorm(n, mu0, sigma)
+      (mean(smp) - mu0) / (sd(smp) / sqrt(n))
+    }, numeric(1))
+    alpha_sim$t <- tail(c(alpha_sim$t, ts), 200)
+  })
+  observeEvent(input$alpha_sim_reset, { alpha_sim$t <- numeric(0) })
+  # New population settings mean a new sampling distribution; start over.
+  observeEvent(c(input$pop_n, input$pop_sigma, input$mu0),
+               { alpha_sim$t <- numeric(0) }, ignoreInit = TRUE)
+
+  alpha_sim_cv <- reactive({
+    alpha <- as.numeric(input$alpha_choice %||% 0.05)
+    tail  <- input$tail_choice %||% "two"
+    df_v  <- (input$pop_n %||% 11) - 1
+    cv_lo <- NA_real_; cv_hi <- NA_real_
+    if (tail == "two") { cv_hi <- qt(1 - alpha / 2, df_v); cv_lo <- -cv_hi
+    } else if (tail == "right") { cv_hi <- qt(1 - alpha, df_v)
+    } else { cv_lo <- qt(alpha, df_v) }
+    list(alpha = alpha, tail = tail, df = df_v, cv_lo = cv_lo, cv_hi = cv_hi)
+  })
+
+  alpha_sim_reject <- function(ts, z) {
+    switch(z$tail,
+      two   = abs(ts) >= z$cv_hi,
+      right = ts >= z$cv_hi,
+      left  = ts <= z$cv_lo)
+  }
+
+  output$alpha_sim_plot <- renderPlot({
+    ts <- alpha_sim$t
+    z  <- alpha_sim_cv()
+    if (length(ts) == 0) {
+      return(ggplot() +
+        annotate("text", x = 0, y = 0,
+                 label = "Click the button to draw studies from a world where H₀ is true.",
+                 colour = "#666666", size = 4.5) +
+        theme_void())
+    }
+    dd <- data.frame(i = seq_along(ts), t = ts,
+                     reject = alpha_sim_reject(ts, z))
+    yr <- max(4, max(abs(ts)) + 0.5)
+    g <- ggplot(dd, aes(i, t, colour = reject)) +
+      geom_point(size = 2.4, alpha = 0.9) +
+      scale_colour_manual(values = c(`FALSE` = PAL$pop_med,
+                                     `TRUE`  = PAL$reject),
+                          guide = "none")
+    if (!is.na(z$cv_hi))
+      g <- g + geom_hline(yintercept = z$cv_hi, colour = PAL$reject_dk,
+                          linetype = "dashed", linewidth = 0.5)
+    if (!is.na(z$cv_lo))
+      g <- g + geom_hline(yintercept = z$cv_lo, colour = PAL$reject_dk,
+                          linetype = "dashed", linewidth = 0.5)
+    g + geom_hline(yintercept = 0, colour = "grey70", linewidth = 0.3) +
+      coord_cartesian(ylim = c(-yr, yr)) +
+      labs(x = "Study number", y = "t-statistic",
+           subtitle = sprintf(
+             "Every study drawn from a population where H₀ is exactly true (df = %d). Orange dots are false alarms.",
+             z$df)) +
+      base_theme()
+  }, res = 96)
+
+  output$alpha_sim_counter <- renderUI({
+    ts <- alpha_sim$t
+    if (length(ts) == 0) return(NULL)
+    z <- alpha_sim_cv()
+    k <- sum(alpha_sim_reject(ts, z)); N <- length(ts)
+    div(class = "p-2 mt-2",
+        style = sprintf("background:%s; color:%s; border-radius:8px;",
+                        PAL$info_bg, PAL$info_fg),
+        sprintf("%d of %d true-null studies rejected H₀ (%.0f%% false alarms so far). Over the long run this rate settles toward α = %.0f%%. Each orange dot is a Type I error: a fluke sample, not a real effect.",
+                k, N, 100 * k / N, 100 * z$alpha))
+  })
 
   # ============================================================================
   # STEP 8, df history plot
@@ -2806,6 +2994,99 @@ server <- function(input, output, session) {
              if (z$reject) "reject H₀" else "fail to reject H₀")) +
       base_theme()
   }, res = 96)
+
+  # ============================================================================
+  # STEP 9, p-value explorer (drag a hypothetical t; both decision rules agree)
+  # ============================================================================
+  pexp_state <- reactive({
+    t_obs <- input$pexp_t %||% 1.5
+    alpha <- as.numeric(input$step9_alpha %||% 0.05)
+    tail  <- input$step9_tail %||% "two"
+    df_v  <- (input$step9_n %||% 11) - 1
+
+    cv_lo <- NA_real_; cv_hi <- NA_real_
+    if (tail == "two") { cv_hi <- qt(1 - alpha / 2, df_v); cv_lo <- -cv_hi
+    } else if (tail == "right") { cv_hi <- qt(1 - alpha, df_v)
+    } else { cv_lo <- qt(alpha, df_v) }
+
+    p_val <- switch(tail,
+      two   = 2 * pt(-abs(t_obs), df_v),
+      right = pt(t_obs, df_v, lower.tail = FALSE),
+      left  = pt(t_obs, df_v))
+    reject_cv <- switch(tail,
+      two   = abs(t_obs) >= cv_hi,
+      right = t_obs >= cv_hi,
+      left  = t_obs <= cv_lo)
+
+    list(t = t_obs, alpha = alpha, tail = tail, df = df_v,
+         cv_lo = cv_lo, cv_hi = cv_hi, p = p_val, reject = reject_cv)
+  })
+
+  output$pexp_plot <- renderPlot({
+    z  <- pexp_state()
+    xr <- t_xrange(c(z$cv_lo, z$cv_hi, z$t))
+    x  <- seq(xr[1], xr[2], length.out = 600)
+    cd <- data.frame(x = x, y = dt(x, z$df))
+
+    region_df <- function(a, b) {
+      if (is.na(a) || is.na(b) || a >= b) return(NULL)
+      xs <- seq(a, b, length.out = 200)
+      data.frame(x = xs, y = dt(xs, z$df))
+    }
+    rej <- switch(z$tail,
+      two   = list(region_df(xr[1], z$cv_lo), region_df(z$cv_hi, xr[2])),
+      right = list(region_df(z$cv_hi, xr[2])),
+      left  = list(region_df(xr[1], z$cv_lo)))
+    pvl <- switch(z$tail,
+      two   = list(region_df(xr[1], -abs(z$t)), region_df(abs(z$t), xr[2])),
+      right = list(region_df(z$t, xr[2])),
+      left  = list(region_df(xr[1], z$t)))
+
+    g <- ggplot()
+    for (r in rej) if (!is.null(r) && nrow(r) > 1)
+      g <- g + geom_area(data = r, aes(x, y), fill = PAL$reject, alpha = 0.55)
+    for (r in pvl) if (!is.null(r) && nrow(r) > 1)
+      g <- g + geom_area(data = r, aes(x, y), fill = PAL$pval, alpha = 0.50)
+    if (!is.na(z$cv_lo))
+      g <- g + geom_vline(xintercept = z$cv_lo, colour = PAL$reject_dk,
+                          linetype = "dashed", linewidth = 0.5)
+    if (!is.na(z$cv_hi))
+      g <- g + geom_vline(xintercept = z$cv_hi, colour = PAL$reject_dk,
+                          linetype = "dashed", linewidth = 0.5)
+    g + geom_line(data = cd, aes(x, y), colour = "black", linewidth = 0.7) +
+      geom_vline(xintercept = z$t, colour = PAL$obs, linewidth = 0.9) +
+      geom_hline(yintercept = 0, colour = "grey60", linewidth = 0.3) +
+      scale_x_continuous(limits = xr, breaks = t_xbreaks(xr)) +
+      labs(x = "t-statistic (signal-to-noise ratio under H₀)", y = "Density",
+           subtitle = sprintf(
+             "Orange = rejection region (area = α = %.2f). Purple = p-value (area beyond your t = %.2f).",
+             z$alpha, z$t)) +
+      base_theme()
+  }, res = 96)
+
+  output$pexp_readout <- renderUI({
+    z <- pexp_state()
+    cv_show <- if (z$tail == "two") sprintf("±%.3f", z$cv_hi)
+               else if (z$tail == "right") sprintf("%.3f", z$cv_hi)
+               else sprintf("%.3f", z$cv_lo)
+    p_show <- if (z$p < 0.001) "< 0.001" else sprintf("%.3f", z$p)
+    div(class = "p-2 mt-2",
+        fluidRow(
+          column(3, stat_card("Your t", sprintf("%.2f", z$t))),
+          column(3, stat_card("Critical value", cv_show)),
+          column(3, stat_card("p-value", p_show)),
+          column(3, stat_card("α", sprintf("%.2f", z$alpha)))),
+        div(class = "p-2 mt-2",
+            style = sprintf("background:%s; color:%s; border-radius:8px; font-weight:600;",
+                            if (z$reject) PAL$ok_bg else PAL$warn_bg,
+                            if (z$reject) PAL$ok_fg else PAL$warn_fg),
+            if (z$reject)
+              sprintf("Reject H₀ under both rules: |t| clears the cutoff (%s), and p (%s) is below α (%.2f).",
+                      cv_show, p_show, z$alpha)
+            else
+              sprintf("Fail to reject H₀ under both rules: |t| does not clear the cutoff (%s), and p (%s) is above α (%.2f).",
+                      cv_show, p_show, z$alpha)))
+  })
 
   # ============================================================================
   # TAB 2, Paired-samples t-test walkthrough (seagulls)

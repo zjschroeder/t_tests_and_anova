@@ -99,8 +99,8 @@ source_factorial_server <- function(input, output, session) {
         p(style = "margin-bottom:6px;",
           tags$b("Running example. "),
           "Yin and colleagues (Pediatrics, 2016) studied how parents ",
-          "measure liquid medication for their children. Two ingredients ",
-          "of accuracy matter: the device the parent uses (an oral syringe ",
+          "measure liquid medication for their children. The design ",
+          "crossed two variables: the device the parent uses (an oral syringe ",
           "or a medicine cup), and the prescribed dose (2.5 ml, 5.0 ml, or ",
           "7.5 ml). Adapted for our walkthrough as a 2 × 3 design with 15 ",
           "parents per cell, the dependent variable is the average percent ",
@@ -120,7 +120,6 @@ source_factorial_server <- function(input, output, session) {
         1, "The 2 × 3 design: cell means, marginal means, grand mean",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "A 2 × 3 factorial design crosses Factor A (with two levels) ",
             "and Factor B (with three levels), producing six ",
             tags$b("cells"),
@@ -135,7 +134,6 @@ source_factorial_server <- function(input, output, session) {
             " is the overall average across the whole dataset."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "Imagine a two-row by three-column grid. Inside each cell, ",
             "write the average score for that specific combination of ",
             "conditions. The numbers running down the right-hand edge are ",
@@ -146,8 +144,7 @@ source_factorial_server <- function(input, output, session) {
             "the grand mean."
           ),
           tldr = tagList(
-            tags$b("Case study (medication dosing). "),
-            "The cell means tell a striking story. Syringes are accurate ",
+            "Syringes are accurate ",
             "across all three prescribed doses (errors of 5%, 7%, and 8%). ",
             "Medicine cups are terrible at the smallest dose (30% error) ",
             "and steadily improve at larger doses (22% at 5 ml, 18% at ",
@@ -157,14 +154,14 @@ source_factorial_server <- function(input, output, session) {
         ),
         div(class = "p-3 mt-2",
             style = "background:#fff; border:1px solid #ddd; border-radius:8px;",
-            build_cell_means_table(LAB8$cells, LAB8$M_personality,
+            build_cell_means_table(LAB8$cells, LAB8$M_modality,
                                    LAB8$M_dose, LAB8$M_grand)),
         callout_warm(
           tags$b("Three kinds of mean worth keeping straight. "),
           tags$br(),
           "• ", tags$b("Cell mean. "),
           "The average within one specific combination of factor levels ",
-          "(for instance, the Syringe by 2 mg cell). There are six cell ",
+          "(for instance, the Syringe by 2.5 ml cell). There are six cell ",
           "means in a 2 × 3 design.", tags$br(),
           "• ", tags$b("Marginal mean. "),
           "The average across one factor, ignoring the other. For example, ",
@@ -184,7 +181,6 @@ source_factorial_server <- function(input, output, session) {
         2, "Three null hypotheses, three F-tests",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "Factorial ANOVA evaluates three separate null hypotheses ",
             "simultaneously. The first is the main effect of A, ",
             math_inline("H_0^A:\\ \\mu_{1\\cdot} = \\mu_{2\\cdot}"),
@@ -198,24 +194,22 @@ source_factorial_server <- function(input, output, session) {
             "every level of B (and vice versa)."
           ),
           example = tagList(
-            tags$b("In human words. "),
-            "The main effect of A asks whether extraverts, on average, score ",
-            "differently from introverts when we ignore prescribed dose. The ",
-            "main effect of B asks whether prescribed dose affects scores, ",
-            "on average, when we ignore personality. The interaction asks ",
+            "The main effect of A asks whether syringes, on average, produce ",
+            "different error from medicine cups when we ignore prescribed dose. The ",
+            "main effect of B asks whether prescribed dose affects error, ",
+            "on average, when we ignore the device. The interaction asks ",
             "whether the effect of one factor depends on the level of the ",
-            "other (whether caffeine affects extraverts differently from ",
-            "how it affects introverts). Crucially, the interaction can ",
+            "other (whether dose affects syringe accuracy differently from ",
+            "how it affects medicine-cup accuracy). Note that the interaction can ",
             "show up as significant even when neither main effect does."
           ),
           tldr = tagList(
-            tags$b("Case study (medication dosing). "),
             "The three null hypotheses for the dosing study specify, in turn: that ",
-            "the overall personality marginals are equal (",
+            "the overall modality marginals are equal (",
             math_inline("\\mu_{\\text{Syringe}} = \\mu_{\\text{Medicine cup}}"),
             "); that the overall dose marginals are equal (",
-            math_inline("\\mu_{0\\,\\text{mg}} = \\mu_{2\\,\\text{mg}} = \\mu_{4\\,\\text{mg}}"),
-            "); and that there is no interaction between personality and ",
+            math_inline("\\mu_{2.5\\,\\text{ml}} = \\mu_{5.0\\,\\text{ml}} = \\mu_{7.5\\,\\text{ml}}"),
+            "); and that there is no interaction between modality and ",
             "prescribed dose. Each gets its own F-test."
           )
         ),
@@ -228,7 +222,6 @@ source_factorial_server <- function(input, output, session) {
         3, "Partitioning the variance: \\(SS_{\\text{total}} = SS_A + SS_B + SS_{AB} + SS_{\\text{within}}\\)",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "The total sum of squares partitions into four additive ",
             "components. ",
             math_inline("SS_A"),
@@ -244,7 +237,6 @@ source_factorial_server <- function(input, output, session) {
             " captures the residual noise within cells."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "The conceptual structure is the same as in one-way ANOVA, ",
             "with one elaboration. The between-groups piece, which used to ",
             "be a single sum of squares, now splits into three sub-pieces. ",
@@ -255,12 +247,11 @@ source_factorial_server <- function(input, output, session) {
             "reproduces the variation in the cell means."
           ),
           tldr = tagList(
-            tags$b("Case study (medication dosing). "),
             "For the by-hand version of the dosing study (which uses a different ",
             "scenario from the Jamovi data above), the partitioning gives ",
             "SS_A = 120, SS_B = 60, SS_AB = 60, SS_within = 120, and ",
             "SS_total = 360. The interaction piece is the same size as ",
-            "the Factor B main effect, which is unusual and worth noticing."
+            "the Factor B main effect."
           )
         ),
         math_block("SS_{\\text{total}} \\;=\\; SS_A + SS_B + SS_{A \\times B} + SS_{\\text{within}}"),
@@ -272,7 +263,6 @@ source_factorial_server <- function(input, output, session) {
         4, "Three F-ratios, same denominator, different numerators",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "All three F-ratios share a common denominator, ",
             math_inline("MS_{\\text{within}}"),
             ", which serves as the noise estimate. The three numerators ",
@@ -283,7 +273,6 @@ source_factorial_server <- function(input, output, session) {
             "the F-distribution it is referenced against."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "The signal-to-noise idea repeats three times. Each F-ratio ",
             "asks whether one specific piece of between-cell variation is ",
             "larger than what we would expect from the within-cell noise ",
@@ -292,7 +281,6 @@ source_factorial_server <- function(input, output, session) {
             "together in a single source table."
           ),
           tldr = tagList(
-            tags$b("Case study (medication dosing). "),
             "Three F-tests, one for each null hypothesis. The source table ",
             "below collects the Jamovi numbers the dosing study reports."
           )
@@ -333,7 +321,6 @@ source_factorial_server <- function(input, output, session) {
         5, "Reading an interaction plot: parallel lines and what they mean",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "An interaction plot places one factor on the x-axis and ",
             "renders the other factor as separate lines, one for each ",
             "level. Each point on each line represents one cell mean. ",
@@ -344,7 +331,6 @@ source_factorial_server <- function(input, output, session) {
             "effect reverses across levels of B."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "When the two lines run roughly parallel, the effect of dose ",
             "looks the same for both measurement devices, which is what we ",
             "mean by no interaction. When the lines fan out or cross, the ",
@@ -353,7 +339,6 @@ source_factorial_server <- function(input, output, session) {
             "departure from parallel, the larger the interaction."
           ),
           tldr = tagList(
-            tags$b("Case study (medication dosing). "),
             "The interaction plot for the dosing study shows two lines ",
             "with very different shapes. The syringe line stays low and ",
             "roughly flat across all three doses (errors of 5%, 7%, 8%). ",
@@ -382,7 +367,6 @@ source_factorial_server <- function(input, output, session) {
         6, "Interpretation rule: interaction first, then main effects",
         explanation_triad(
           formal = tagList(
-            tags$b("Academic. "),
             "When the A × B interaction is significant, the main effects ",
             "of A and B should be interpreted with caution. A significant ",
             "interaction means that the effect of one factor depends on ",
@@ -393,19 +377,16 @@ source_factorial_server <- function(input, output, session) {
             "(the effect of A separately within each level of B)."
           ),
           example = tagList(
-            tags$b("In human words. "),
             "When the lines on an interaction plot cross or fan out, the ",
-            "phrase \"larger doses produce less error on average\" hides ",
-            "the interesting story, because the average masks the fact ",
+            "phrase \"larger doses produce less error on average\" is ",
+            "misleading, because the average masks the fact ",
             "that the relationship between dose and error depends on the ",
             "measurement device. The better approach is to describe what ",
             "is happening cell by cell. Something like \"medicine cups ",
             "produce most of the error, and the error gets especially bad ",
-            "at small doses\" communicates what the data are actually ",
-            "saying."
+            "at small doses\" communicates what the data show."
           ),
           tldr = tagList(
-            tags$b("Case study (medication dosing). "),
             "The dosing study's interaction is significant, F(2, 84) = ",
             "9.2, p < .001. Following the standard accommodation, the ",
             "cell means should be interpreted directly rather than the ",
